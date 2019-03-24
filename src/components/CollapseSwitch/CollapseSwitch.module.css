@@ -1,0 +1,22 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 44px;
+  height: 35px;
+  cursor: pointer;
+}
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: column;
+  height: 20px;
+  border-radius: 5px;
+}
+.tapped {
+  background-color: #eee;
+}
+.btnIcon {
+  width: 18px;
+  height: 18px;
+}

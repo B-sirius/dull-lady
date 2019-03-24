@@ -1,0 +1,6 @@
+.container {
+  position: relative;
+  flex-grow: 1;
+  overflow-y: scroll;
+  padding: 0 24px;
+}

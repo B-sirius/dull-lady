@@ -1,0 +1,14 @@
+.container {
+  position: relative;
+  height: 50px;
+  display: flex;
+  padding: 0 24px;
+}
+
+.pathContainer {
+  flex-grow: 1;
+  overflow-x: scroll;
+  display: flex;
+  align-items: center;
+}
+

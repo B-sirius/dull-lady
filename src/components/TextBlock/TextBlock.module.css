@@ -1,0 +1,26 @@
+.container {
+  position: relative;
+  display: flex;
+  padding-bottom: 10px;
+}
+
+.text {
+  flex-grow: 1;
+  margin-left: 9px;
+  margin-top: 2px;
+  white-space: pre-wrap;
+}
+
+.text:focus {
+  outline: 0px solid transparent;
+}
+
+.textMargin {
+  margin-right: 44px;
+}
+
+.switch {
+  position: absolute;
+  right: 0;
+  top: -6px;
+}

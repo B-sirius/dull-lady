@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  width: 23px;
+  height: 23px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.container:hover {
+  background-color: rgb(183, 188, 191);
+}
+.circle {
+  border-radius: 50%;
+  width: 9px;
+  height: 9px;
+  background-color: rgb(75, 81, 85);
+}

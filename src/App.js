@@ -1,26 +1,24 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { PureComponent } from 'react';
+import Header from 'views/Header';
+import Main from 'views/Main';
+import Footer from 'views/Footer';
+import styles from './App.module.css';
+import { Provider } from 'react-redux';
+import configureStore from 'store';
 
-class App extends Component {
+const store = configureStore({
+});
+
+class App extends PureComponent {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <Provider store={store}>
+        <div className={styles.container}>
+          <Header />
+          <Main />
+          <Footer />
+        </div>
+      </Provider>
     );
   }
 }
