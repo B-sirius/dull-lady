@@ -1,3 +1,4 @@
+/* 一行的内容 */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
@@ -15,6 +16,8 @@ class TextBlock extends PureComponent {
     onContentChange: PropTypes.func,
     onEnter: PropTypes.func,
     onMergeNode: PropTypes.func,
+    onIndentToRight: PropTypes.func,
+    onIndentToLeft: PropTypes.func,
     childrenCollapsed: PropTypes.bool,
     handleSwitchToggle: PropTypes.func
   }
@@ -26,6 +29,8 @@ class TextBlock extends PureComponent {
     onContentChange: () => { },
     onEnter: () => { },
     onMergeNode: () => { },
+    onIndentToRight: () => { },
+    onIndentToLeft: () => { },
     childrenCollapsed: false,
     handleSwitchToggle: () => { }
   }
@@ -39,6 +44,8 @@ class TextBlock extends PureComponent {
       childrenCollapsed,
       onEnter,
       onMergeNode,
+      onIndentToRight,
+      onIndentToLeft,
       id
     } = this.props;
     const textClass = classnames({
@@ -58,6 +65,8 @@ class TextBlock extends PureComponent {
           onContentChange={onContentChange}
           onEnter={onEnter}
           onMergeNode={onMergeNode}
+          onIndentToRight={onIndentToRight}
+          onIndentToLeft={onIndentToLeft}
         />
         {
           hasChildren &&

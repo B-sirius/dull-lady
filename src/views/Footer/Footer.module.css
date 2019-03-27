@@ -1,4 +1,6 @@
 .container {
   position: relative;
   height: 44px;
+  border-top: 1px solid rgb(241, 244, 245);
+  flex-shrink: 0;
 }

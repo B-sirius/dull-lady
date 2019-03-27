@@ -5,13 +5,15 @@ import Node from 'components/Node';
 import data from 'assets/demo.json';
 import { UPDATE_DATA, UPDATE_CURSOR } from 'actions';
 import styles from './Main.module.css';
-// import { normalize, schema } from 'normalizr';
 
 class Main extends PureComponent {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
     contentData: PropTypes.object,
-    cursorPosition: PropTypes.object
+    cursorPosition: PropTypes.object,
+    focusedNode: PropTypes.object,
+    handleIndentToLeft: PropTypes.func,
+    handleIndentToRight: PropTypes.func,
   }
 
   componentDidMount() {
@@ -54,8 +56,13 @@ class Main extends PureComponent {
   }
 
   render() {
-    const { contentData } = this.props;
+    const {
+      contentData,
+      handleIndentToLeft,
+      handleIndentToRight
+    } = this.props;
     const { rootId, nodes } = contentData;
+
     return (
       <div className={styles.container}>
         {
@@ -63,6 +70,8 @@ class Main extends PureComponent {
             <Node
               key={nodeId}
               node={nodes[nodeId]}
+              handleIndentToRight={handleIndentToRight}
+              handleIndentToLeft={handleIndentToLeft}
             />
           ))
         }
@@ -72,9 +81,10 @@ class Main extends PureComponent {
 }
 
 export default connect(
-  ({ contentData, cursorPosition }) => ({
+  ({ contentData, cursorPosition, focusedNode }) => ({
     contentData,
-    cursorPosition
+    cursorPosition,
+    focusedNode
   }),
   dispatch => ({ dispatch })
 )(Main)

@@ -1,8 +1,5 @@
 import React, { PureComponent } from 'react';
-import Header from 'views/Header';
-import Main from 'views/Main';
-import Footer from 'views/Footer';
-import styles from './App.module.css';
+import Global from 'views/Global';
 import { Provider } from 'react-redux';
 import configureStore from 'store';
 
@@ -13,11 +10,7 @@ class App extends PureComponent {
   render() {
     return (
       <Provider store={store}>
-        <div className={styles.container}>
-          <Header />
-          <Main />
-          <Footer />
-        </div>
+        <Global />
       </Provider>
     );
   }

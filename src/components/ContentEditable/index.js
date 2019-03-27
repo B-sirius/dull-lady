@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { htmlEntities } from 'utils/helper';
+import { connect } from 'react-redux';
+import { UPDATE_FOCUSED_NODE } from 'actions';
 import styles from './ContentEditable.module.css';
 
 class ContentEditable extends Component {
@@ -10,6 +12,8 @@ class ContentEditable extends Component {
     onContentChange: PropTypes.func,
     onEnter: PropTypes.func,
     onMergeNode: PropTypes.func,
+    onIndentToRight: PropTypes.func,
+    onIndentToLeft: PropTypes.func,
     html: PropTypes.string,
     className: PropTypes.string
   }
@@ -18,6 +22,7 @@ class ContentEditable extends Component {
     onContentChange: () => { },
     onEnter: () => { },
     onMergeNode: () => { },
+    onIndentToRight: () => { },
     html: '',
     className: ''
   }
@@ -42,6 +47,10 @@ class ContentEditable extends Component {
     if (e.keyCode === 13) this.handleEnter(e);
     // 退格
     else if (e.keyCode === 8) this.handleBackspace(e);
+    // tab
+    else if (!e.shiftKey && e.keyCode === 9) this.handleTab(e);
+    // shift + tab
+    else if (e.shiftKey && e.keyCode === 9) this.handleShiftTab(e);
   }
 
   // 处理回车，创建新节点
@@ -71,6 +80,32 @@ class ContentEditable extends Component {
     }
   }
 
+  // 处理tab
+  handleTab = e => {
+    e.preventDefault();
+    this.props.onIndentToRight(e);
+  }
+
+  // 处理shift+tab
+  handleShiftTab = e => {
+    e.preventDefault();
+    this.props.onIndentToLeft(e);
+  }
+
+  handleBlur = () => {
+    // 更新焦点
+    this.props.dispatch({
+      type: UPDATE_FOCUSED_NODE,
+      payload: {
+        currId: null,
+      }
+    })
+
+    // 触发内容dispatch
+    this.emitChange();
+  }
+
+  // 触发更新reducer
   emitChange = () => {
     const html = ReactDOM.findDOMNode(this).innerHTML;
     if (this.props.onContentChange && html !== this.lastHtml) {
@@ -83,16 +118,26 @@ class ContentEditable extends Component {
     this.lastHtml = html;
   }
 
+  updateFocusedNode = () => {
+    this.props.dispatch({
+      type: UPDATE_FOCUSED_NODE,
+      payload: {
+        currId: this.props.id,
+      }
+    })
+  }
+
   render() {
     const { html, className, id } = this.props;
-    const { emitChange, hanldeKeyDown } = this;
+    const { emitChange, hanldeKeyDown, updateFocusedNode, handleBlur } = this;
 
     return (
       <div
         id={id}
         className={className}
         onInput={emitChange}
-        onBlur={emitChange}
+        onBlur={handleBlur}
+        onFocus={updateFocusedNode}
         contentEditable
         onKeyDown={hanldeKeyDown}
         tabIndex="0"
@@ -103,4 +148,9 @@ class ContentEditable extends Component {
   }
 }
 
-export default ContentEditable;
+export default connect(
+  ({ contentData }) => ({
+    contentData
+  }),
+  dispatch => ({ dispatch })
+)(ContentEditable)

@@ -3,6 +3,7 @@
   height: 50px;
   display: flex;
   padding: 0 24px;
+  flex-shrink: 0;
 }
 
 .pathContainer {

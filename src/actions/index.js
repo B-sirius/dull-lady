@@ -1,2 +1,3 @@
 export const UPDATE_DATA = 'UPDATE_DATA';
 export const UPDATE_CURSOR = 'UPDATE_CURSOR';
+export const UPDATE_FOCUSED_NODE = 'UPDATE_FOCUSED_NODE';

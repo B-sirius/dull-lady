@@ -1,7 +1,8 @@
 import { combineReducers } from 'redux';
 import {
   UPDATE_DATA,
-  UPDATE_CURSOR
+  UPDATE_CURSOR,
+  UPDATE_FOCUSED_NODE
 } from 'actions';
 
 function contentData(
@@ -42,8 +43,29 @@ function cursorPosition(
   }
 }
 
+// 更新focus的node
+function focusedNode(
+  state = {
+    currId: null, // 当前点击的id
+    lastId: null // 上次点击的id
+  },
+  action
+) {
+  const { type, payload } = action;
+  switch (type) {
+    case UPDATE_FOCUSED_NODE:
+      return {
+        currId: payload.currId,
+        lastId: state.currId
+      }
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   global: (state = {}) => state,
   contentData,
-  cursorPosition
+  cursorPosition,
+  focusedNode
 });
