@@ -11,20 +11,26 @@ class Footer extends PureComponent {
     contentData: PropTypes.object,
     handleIndentToLeft: PropTypes.func,
     handleIndentToRight: PropTypes.func,
+    isActive: PropTypes.bool
   }
 
   render() {
     const {
       handleIndentToRight,
-      handleIndentToLeft
+      handleIndentToLeft,
+      isActive
     } = this.props;
 
     return (
       <div className={styles.container}>
-        <TextFocusedTool
-          handleIndentToRight={handleIndentToRight}
-          handleIndentToLeft={handleIndentToLeft}
-        />
+        {
+          isActive && (
+            <TextFocusedTool
+              handleIndentToRight={handleIndentToRight}
+              handleIndentToLeft={handleIndentToLeft}
+            />
+          )
+        }
       </div>
     );
   }

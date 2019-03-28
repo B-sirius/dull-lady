@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types'
 import { connect } from 'react-redux';
 import Node from 'components/Node';
 import data from 'assets/demo.json';
-import { UPDATE_DATA, UPDATE_CURSOR } from 'actions';
+import { UPDATE_DATA, UPDATE_CURSOR, UPDATE_FOCUSED_NODE } from 'actions';
 import styles from './Main.module.css';
 
 class Main extends PureComponent {
@@ -55,16 +55,29 @@ class Main extends PureComponent {
     });
   }
 
+  blurFocus = e => {
+    this.props.dispatch({
+      type: UPDATE_FOCUSED_NODE,
+      payload: {
+        currId: null
+      }
+    });
+  }
+
   render() {
     const {
       contentData,
       handleIndentToLeft,
       handleIndentToRight
     } = this.props;
+    const { blurFocus } = this;
     const { rootId, nodes } = contentData;
 
     return (
-      <div className={styles.container}>
+      <div
+        className={styles.container}
+        onClick={blurFocus}
+      >
         {
           nodes[rootId].children.map(nodeId => (
             <Node

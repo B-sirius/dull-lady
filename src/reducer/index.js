@@ -31,13 +31,18 @@ function contentData(
 function cursorPosition(
   state = {
     needUpdate: false, // 只有为true时才需要执行更新
+    id: null,
+    position: 0,
   },
   action
 ) {
   const { type, payload } = action;
   switch (type) {
     case UPDATE_CURSOR:
-      return { ...payload }
+      return {
+        ...state,
+        ...payload
+      }
     default:
       return state;
   }
@@ -47,7 +52,6 @@ function cursorPosition(
 function focusedNode(
   state = {
     currId: null, // 当前点击的id
-    lastId: null // 上次点击的id
   },
   action
 ) {
@@ -56,7 +60,6 @@ function focusedNode(
     case UPDATE_FOCUSED_NODE:
       return {
         currId: payload.currId,
-        lastId: state.currId
       }
     default:
       return state;

@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { htmlEntities } from 'utils/helper';
+import { htmlEntities, getCaretPosition } from 'utils/helper';
 import { connect } from 'react-redux';
-import { UPDATE_FOCUSED_NODE } from 'actions';
-import styles from './ContentEditable.module.css';
+import { UPDATE_FOCUSED_NODE, UPDATE_CURSOR } from 'actions';
 
 class ContentEditable extends Component {
   static propTypes = {
@@ -51,6 +50,8 @@ class ContentEditable extends Component {
     else if (!e.shiftKey && e.keyCode === 9) this.handleTab(e);
     // shift + tab
     else if (e.shiftKey && e.keyCode === 9) this.handleShiftTab(e);
+    // 方向键
+    else if (e.keyCode === 37 || e.keyCode === 38 || e.keyCode === 39 || e.keyCode === 40) this.trackCursorPosition(e);
   }
 
   // 处理回车，创建新节点
@@ -92,19 +93,6 @@ class ContentEditable extends Component {
     this.props.onIndentToLeft(e);
   }
 
-  handleBlur = () => {
-    // 更新焦点
-    this.props.dispatch({
-      type: UPDATE_FOCUSED_NODE,
-      payload: {
-        currId: null,
-      }
-    })
-
-    // 触发内容dispatch
-    this.emitChange();
-  }
-
   // 触发更新reducer
   emitChange = () => {
     const html = ReactDOM.findDOMNode(this).innerHTML;
@@ -118,7 +106,7 @@ class ContentEditable extends Component {
     this.lastHtml = html;
   }
 
-  updateFocusedNode = () => {
+  updateFocusedNode = e => {
     this.props.dispatch({
       type: UPDATE_FOCUSED_NODE,
       payload: {
@@ -127,21 +115,37 @@ class ContentEditable extends Component {
     })
   }
 
+  trackCursorPosition = e => {
+    e.stopPropagation();
+    const el = document.getElementById(this.props.id);
+    const position = getCaretPosition(el);
+    console.log(position);
+    this.props.dispatch({
+      type: UPDATE_CURSOR,
+      payload: {
+        position,
+        id: this.props.id
+      }
+    })
+  }
+
   render() {
     const { html, className, id } = this.props;
-    const { emitChange, hanldeKeyDown, updateFocusedNode, handleBlur } = this;
+    const { emitChange, hanldeKeyDown, updateFocusedNode, trackCursorPosition } = this;
 
     return (
       <div
         id={id}
         className={className}
         onInput={emitChange}
-        onBlur={handleBlur}
+        onBlur={emitChange}
         onFocus={updateFocusedNode}
+        onClick={trackCursorPosition}
         contentEditable
         onKeyDown={hanldeKeyDown}
         tabIndex="0"
         dangerouslySetInnerHTML={{ __html: htmlEntities(html) }}
+        spellCheck="false"
       >
       </div>
     );

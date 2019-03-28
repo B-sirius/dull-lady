@@ -6,20 +6,25 @@ import Header from 'views/Header';
 import Main from 'views/Main';
 import Footer from 'views/Footer';
 import styles from './Global.module.css';
+import AddBtn from 'components/AddBtn';
 
 class Global extends PureComponent {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
     contentData: PropTypes.object,
-    cursorPosition: PropTypes.object,
     focusedNode: PropTypes.object,
   }
 
+  isNodeFocused = () => {
+    const { focusedNode } = this.props;
+    return !!focusedNode.currId;
+  }
+
   // 右缩进
-  handleIndentToRight = (e, triggeredByBtn) => {
+  handleIndentToRight = () => {
     const { contentData, focusedNode } = this.props;
-    const { currId, lastId } = focusedNode;
-    const id = triggeredByBtn ? lastId : currId; // 如果是点击按钮触发缩进，由于点击按钮会导致编辑中的文本失焦，不能使用currId
+    const { currId } = focusedNode;
+    const id = currId;
     if (!id || !contentData.nodes[id]) return;
 
     const { nodes, rootId } = contentData;
@@ -78,10 +83,10 @@ class Global extends PureComponent {
   }
 
   // 左缩进
-  handleIndentToLeft = (e, triggeredByBtn = false) => {
+  handleIndentToLeft = () => {
     const { contentData, focusedNode } = this.props;
-    const { currId, lastId } = focusedNode;
-    const id = triggeredByBtn ? lastId : currId; // 如果是点击按钮触发缩进，由于点击按钮会导致编辑中的文本失焦，不能使用currId
+    const { currId } = focusedNode;
+    const id = currId;
     if (!id || !contentData.nodes[id]) return;
 
     const { nodes, rootId } = contentData;
@@ -146,7 +151,8 @@ class Global extends PureComponent {
   render() {
     const {
       handleIndentToRight,
-      handleIndentToLeft
+      handleIndentToLeft,
+      isNodeFocused
     } = this;
 
     return (
@@ -157,18 +163,21 @@ class Global extends PureComponent {
           handleIndentToRight={handleIndentToRight}
         />
         <Footer
+          isActive={isNodeFocused()}
           handleIndentToLeft={handleIndentToLeft}
           handleIndentToRight={handleIndentToRight}
         />
+        {
+          !isNodeFocused() && <AddBtn />
+        }
       </div>
     );
   }
 }
 
 export default connect(
-  ({ contentData, cursorPosition, focusedNode }) => ({
+  ({ contentData, focusedNode }) => ({
     contentData,
-    cursorPosition,
     focusedNode
   }),
   dispatch => ({ dispatch })
