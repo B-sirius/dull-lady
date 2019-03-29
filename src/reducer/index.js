@@ -7,11 +7,12 @@ import {
 
 function contentData(
   state = {
+    path: ['11111111-d540-03c2-ecd5-cb5c391484e'],
     rootId: '11111111-d540-03c2-ecd5-cb5c391484e',
     nodes: {
       '11111111-d540-03c2-ecd5-cb5c391484e': {
         id: '11111111-d540-03c2-ecd5-cb5c391484e',
-        content: 'home',
+        content: 'Home',
         children: []
       }
     }
@@ -21,7 +22,10 @@ function contentData(
   const { type, payload } = action;
   switch (type) {
     case UPDATE_DATA:
-      return { ...payload }
+      return {
+        ...state,
+        ...payload
+      }
     default:
       return state;
   }
@@ -58,9 +62,7 @@ function focusedNode(
   const { type, payload } = action;
   switch (type) {
     case UPDATE_FOCUSED_NODE:
-      return {
-        currId: payload.currId,
-      }
+      return {...payload}
     default:
       return state;
   }

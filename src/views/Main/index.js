@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import Node from 'components/Node';
 import data from 'assets/demo.json';
 import { UPDATE_DATA, UPDATE_CURSOR, UPDATE_FOCUSED_NODE } from 'actions';
+import { updateCursor } from 'utils/helper';
+import uuidv1 from 'uuid/v1';
 import styles from './Main.module.css';
 
 class Main extends PureComponent {
@@ -12,50 +14,42 @@ class Main extends PureComponent {
     contentData: PropTypes.object,
     cursorPosition: PropTypes.object,
     focusedNode: PropTypes.object,
-    handleIndentToLeft: PropTypes.func,
-    handleIndentToRight: PropTypes.func,
   }
 
   componentDidMount() {
-    this.props.dispatch({
-      type: UPDATE_DATA,
-      payload: data
-    });
+    this.initContentData();
   }
 
   componentDidUpdate() {
-    const { cursorPosition } = this.props;
-    if (cursorPosition.needUpdate) this.updateCursor();
+    const { cursorPosition, dispatch } = this.props;
+    if (cursorPosition.needUpdate) updateCursor(dispatch, UPDATE_CURSOR, cursorPosition);
   }
 
-  // 更新光标位置
-  updateCursor = () => {
-    // debugger;
-    const { cursorPosition } = this.props;
-    const { id, position } = cursorPosition;
-    const el = document.getElementById(id);
-    const range = document.createRange();
-    const sel = window.getSelection();
-    // debugger;
-    if (el.childNodes.length) {
-      range.setStart(el.childNodes[0], position);
+  initContentData = () => {
+    const rootId = uuidv1();
+    for (let key of Object.keys(data.nodes)) {
+      const node = data.nodes[key];
+      if (!node.parent) node.parent = rootId;
     }
-    else {
-      range.setStart(el, position);
-    }
-    range.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(range);
-
     this.props.dispatch({
-      type: UPDATE_CURSOR,
+      type: UPDATE_DATA,
       payload: {
-        needUpdate: false
+        path: [rootId],
+        rootId,
+        nodes: {
+          [rootId]: {
+            id: rootId,
+            content: 'Home',
+            children: data.rootChildren
+          },
+          ...data.nodes
+        }
       }
     });
   }
 
   blurFocus = e => {
+    console.log('blur')
     this.props.dispatch({
       type: UPDATE_FOCUSED_NODE,
       payload: {
@@ -67,24 +61,20 @@ class Main extends PureComponent {
   render() {
     const {
       contentData,
-      handleIndentToLeft,
-      handleIndentToRight
     } = this.props;
     const { blurFocus } = this;
     const { rootId, nodes } = contentData;
-
     return (
       <div
         className={styles.container}
         onClick={blurFocus}
       >
         {
+          !!nodes[rootId].children &&
           nodes[rootId].children.map(nodeId => (
             <Node
               key={nodeId}
               node={nodes[nodeId]}
-              handleIndentToRight={handleIndentToRight}
-              handleIndentToLeft={handleIndentToLeft}
             />
           ))
         }

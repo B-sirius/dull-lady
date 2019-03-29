@@ -6,4 +6,12 @@
   height: 50px;
   border-radius: 50%;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.12) 0px 3px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(145, 214, 231);
+}
+
+.addNodeImg {
+  width: 30px;
 }

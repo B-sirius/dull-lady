@@ -5,8 +5,8 @@ import indentLeftImg from 'assets/indent-decrease.svg';
 import indentRightImg from 'assets/indent-increase.svg';
 import trashImg from 'assets/trash.svg';
 import { connect } from 'react-redux';
-import { EL_ID } from 'utils/constants';
 import { UPDATE_DATA, UPDATE_CURSOR } from 'actions';
+import { handleIndentToLeft, handleIndentToRight, handleDeleteNode } from 'utils/helper';
 import styles from './TextFocusedTool.module.css';
 
 class TextFocusedTool extends PureComponent {
@@ -14,61 +14,42 @@ class TextFocusedTool extends PureComponent {
     focusedNode: PropTypes.object,
     contentData: PropTypes.object,
     cursorPosition: PropTypes.object,
-    handleIndentToLeft: PropTypes.func,
-    handleIndentToRight: PropTypes.func,
     dispatch: PropTypes.func
   }
 
+  indentToLeft = () => {
+    const { dispatch, contentData, focusedNode } = this.props;
+    handleIndentToLeft(dispatch, UPDATE_DATA, UPDATE_CURSOR, contentData, focusedNode);
+  }
+
+  indentToRight = () => {
+    const { dispatch, contentData, focusedNode } = this.props;
+    handleIndentToRight(dispatch, UPDATE_DATA, UPDATE_CURSOR, contentData, focusedNode);
+  }
+
   deleteNode = () => {
-    const { contentData, focusedNode } = this.props;
-    const id = focusedNode.currId;
-    if (!id) return;
-    
-    const { rootId, nodes } = contentData;
-    const parent = nodes[nodes[id].parent];
-    const nodeIndex = nodes[parent.id].children.indexOf(id);
-
-    if (nodeIndex === -1) {
-      console.error(`未在${parent.id}中找到子节点${id}`);
-      return false;
-    }
-
-    this.props.dispatch({
-      type: UPDATE_DATA,
-      payload: {
-        rootId,
-        nodes: {
-          ...nodes,
-          [parent.id]: {
-            ...parent,
-            children: [
-              ...parent.children.slice(0, nodeIndex),
-              ...parent.children.slice(nodeIndex + 1)
-            ]
-          }
-        }
-      }
-    })
+    const { dispatch, contentData, focusedNode } = this.props;
+    handleDeleteNode(dispatch, UPDATE_DATA, contentData, focusedNode);
   }
 
   render() {
     const {
       deleteNode,
+      indentToLeft,
+      indentToRight
     } = this;
-
-    const { handleIndentToLeft, handleIndentToRight } = this.props;
 
     return (
       <div className={styles.container}>
         <div
           className={styles.button}
-          onClick={handleIndentToLeft}
+          onClick={indentToLeft}
         >
           <img className={styles.btnImg} src={indentLeftImg} alt="左缩进" />
         </div>
         <div
           className={styles.button}
-          onClick={handleIndentToRight}
+          onClick={indentToRight}
         >
           <img className={styles.btnImg} src={indentRightImg} alt="右缩进" />
         </div>

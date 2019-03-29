@@ -1,45 +1,26 @@
 {
-  "rootId": "fba0d0d9-d540-03c2-ecd5-cb5c111184ef",
+  "rootChildren": [
+    "fba0d0d9-d540-03c2-ecd5-cb5c391484ef",
+    "886689fd-8ca1-75ed-8086-fe05904ff039",
+    "bbc8e79d-5e51-83b8-2639-812471972e04",
+    "d25704a8-fe09-ab2a-7c54-58c5e8113e88",
+    "602f03a8-bfdd-5193-f0bb-b4d0f5fa165c",
+    "1e663464-4c22-bd0a-85a7-3a287ac2f02e"
+  ],
   "nodes": {
-    "fba0d0d9-d540-03c2-ecd5-cb5c111184ef": {
-      "id": "fba0d0d9-d540-03c2-ecd5-cb5c111184ef",
-      "content": "home",
-      "children": [
-        "fba0d0d9-d540-03c2-ecd5-cb5c391484ef",
-        "886689fd-8ca1-75ed-8086-fe05904ff039",
-        "bbc8e79d-5e51-83b8-2639-812471972e04",
-        "d25704a8-fe09-ab2a-7c54-58c5e8113e88",
-        "1e663464-4c22-bd0a-85a7-3a287ac2f02e"
-      ]
-    },
-    "fba0d0d9-d540-03c2-ecd5-cb5c111184ef": {
-      "id": "fba0d0d9-d540-03c2-ecd5-cb5c111184ef",
-      "content": "home",
-      "children": [
-        "fba0d0d9-d540-03c2-ecd5-cb5c391484ef",
-        "886689fd-8ca1-75ed-8086-fe05904ff039",
-        "bbc8e79d-5e51-83b8-2639-812471972e04",
-        "d25704a8-fe09-ab2a-7c54-58c5e8113e88",
-        "1e663464-4c22-bd0a-85a7-3a287ac2f02e"
-      ]
-    },
     "fba0d0d9-d540-03c2-ecd5-cb5c391484ef": {
-      "parent": "fba0d0d9-d540-03c2-ecd5-cb5c111184ef",
       "id": "fba0d0d9-d540-03c2-ecd5-cb5c391484ef",
       "content": "Welcome to HackFlowy!"
     },
     "886689fd-8ca1-75ed-8086-fe05904ff039": {
-      "parent": "fba0d0d9-d540-03c2-ecd5-cb5c111184ef",
       "id": "886689fd-8ca1-75ed-8086-fe05904ff039",
       "content": "An open-source WorkFlowy clone"
     },
     "bbc8e79d-5e51-83b8-2639-812471972e04": {
-      "parent": "fba0d0d9-d540-03c2-ecd5-cb5c111184ef",
       "id": "bbc8e79d-5e51-83b8-2639-812471972e04",
       "content": "Built using Backbone + Socket.IO"
     },
     "d25704a8-fe09-ab2a-7c54-58c5e8113e88": {
-      "parent": "fba0d0d9-d540-03c2-ecd5-cb5c111184ef",
       "id": "d25704a8-fe09-ab2a-7c54-58c5e8113e88",
       "content": "P.S",
       "children": [
@@ -58,12 +39,10 @@
       "content": "欧拉欧拉欧拉欧拉"
     },
     "602f03a8-bfdd-5193-f0bb-b4d0f5fa165c": {
-      "parent": "fba0d0d9-d540-03c2-ecd5-cb5c111184ef",
       "id": "602f03a8-bfdd-5193-f0bb-b4d0f5fa165c",
       "content": "Pulled this together in a few hours to learn Backbone"
     },
     "1e663464-4c22-bd0a-85a7-3a287ac2f02e": {
-      "parent": "fba0d0d9-d540-03c2-ecd5-cb5c111184ef",
       "id": "1e663464-4c22-bd0a-85a7-3a287ac2f02e",
       "content": "Feel free to try it out and hack on it"
     }

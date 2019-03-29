@@ -6,6 +6,9 @@ import Dot from 'components/Dot';
 import CollapseSwitch from 'components/CollapseSwitch';
 import ContentEditbale from 'components/ContentEditable';
 import styles from './TextBlock.module.css';
+import { UPDATE_DATA } from 'actions';
+import { updateRoot } from 'utils/helper';
+import { connect } from 'react-redux';
 
 class TextBlock extends PureComponent {
   static propTypes = {
@@ -16,10 +19,9 @@ class TextBlock extends PureComponent {
     onContentChange: PropTypes.func,
     onEnter: PropTypes.func,
     onMergeNode: PropTypes.func,
-    onIndentToRight: PropTypes.func,
-    onIndentToLeft: PropTypes.func,
     childrenCollapsed: PropTypes.bool,
-    handleSwitchToggle: PropTypes.func
+    handleSwitchToggle: PropTypes.func,
+    contentData: PropTypes.object,
   }
 
   static defaultProps = {
@@ -44,10 +46,11 @@ class TextBlock extends PureComponent {
       childrenCollapsed,
       onEnter,
       onMergeNode,
-      onIndentToRight,
-      onIndentToLeft,
-      id
+      id,
+      dispatch,
+      contentData
     } = this.props;
+
     const textClass = classnames({
       [styles.text]: true,
       [styles.textMargin]: hasChildren
@@ -57,7 +60,9 @@ class TextBlock extends PureComponent {
       <div
         className={styles.container}
       >
-        <Dot />
+        <Dot
+          onClick={updateRoot(dispatch, UPDATE_DATA, id, contentData)}
+        />
         <ContentEditbale
           id={id}
           className={textClass}
@@ -65,8 +70,6 @@ class TextBlock extends PureComponent {
           onContentChange={onContentChange}
           onEnter={onEnter}
           onMergeNode={onMergeNode}
-          onIndentToRight={onIndentToRight}
-          onIndentToLeft={onIndentToLeft}
         />
         {
           hasChildren &&
@@ -81,4 +84,9 @@ class TextBlock extends PureComponent {
   }
 }
 
-export default TextBlock;
+export default connect(
+  ({ contentData }) => ({
+    contentData
+  }),
+  dispatch => ({ dispatch })
+)(TextBlock)
