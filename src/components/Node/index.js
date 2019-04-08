@@ -2,8 +2,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { UPDATE_DATA, UPDATE_CURSOR } from 'actions';
-import { handleDeleteNode } from 'utils/helper';
+import { UPDATE_CURSOR } from 'actions';
+import { editNode, deleteNode, createNode } from 'actions';
 import uuidv1 from 'uuid/v1';
 import TextBlock from 'components/TextBlock';
 import styles from './Node.module.css';
@@ -34,165 +34,108 @@ class Node extends PureComponent {
   // 处理节点文本变化
   handleContentChange = id => e => {
     const { value } = e.target;
-    const { nodes } = this.props.contentData;
-    this.props.dispatch({
-      type: UPDATE_DATA,
-      payload: {
-        ...this.props.contentData,
-        nodes: {
-          ...nodes,
-          [id]: {
-            ...nodes[id],
-            content: value
-          }
-        }
-      }
-    });
+    this.props.dispatch(editNode({ id, content: value }));
   }
 
   // 处理回车，将分割内容并创建新节点
   handleEnter = id => splitedString => {
     const { contentData } = this.props;
     const { nodes } = contentData;
-    const newId = uuidv1();
-    const parentId = nodes[id].parent;
     const node = nodes[id];
-    // 如果是在一个有子节点的父节点的末尾回车，则在所有子节点前创建新节点
-    if (splitedString[1] === '' && !!node.children && !!node.children.length) {
-      this.props.dispatch({
-        type: UPDATE_DATA,
-        payload: {
-          ...contentData,
-          nodes: {
-            ...nodes,
-            [id]: {
-              ...node,
-              children: [
-                newId,
-                ...node.children
-              ]
-            },
-            [newId]: {
-              id: newId,
-              parent: id,
-              content: ''
-            }
+    const parent = nodes[node.parent];
+    const nodeIndex = parent.children.indexOf(id);
+    const newId = uuidv1();
+    if (splitedString[1] === '') {
+      // 没有子节点的节点末尾，创建一个一个新节点
+      if (!node.children || !node.children.length) {
+        this.props.dispatch(
+          createNode({
+            id: newId,
+            parentId: node.parent,
+            priority: nodeIndex + 1
+          }));
+        // 通知更新光标位置
+        this.props.dispatch({
+          type: UPDATE_CURSOR,
+          payload: {
+            needUpdate: true,
+            id: newId,
+            position: 0
           }
-        }
-      });
-      // 通知更新光标位置
-      this.props.dispatch({
-        type: UPDATE_CURSOR,
-        payload: {
-          needUpdate: true,
-          id: newId,
-          position: 0
-        }
-      })
-    }
-    else {
-      // 找出node在parent.children里的index，以插入新的node
-      const nodeIndex = nodes[parentId].children.indexOf(id);
-      if (nodeIndex === -1) {
-        console.error(`未在${parentId}中找到子节点${id}`);
-        return false;
+        })
+        return;
       }
-      this.props.dispatch({
-        type: UPDATE_DATA,
-        payload: {
-          ...contentData,
-          nodes: {
-            ...nodes,
-            [parentId]: {
-              ...nodes[parentId],
-              children: [
-                ...nodes[parentId].children.slice(0, nodeIndex),
-                newId,
-                id,
-                ...nodes[parentId].children.slice(nodeIndex + 1),
-              ]
-            },
-            // 新节点去前半部分
-            [newId]: {
-              id: newId,
-              content: splitedString[0],
-              parent: parentId
-            },
-            // 原节点保留后半部分
-            [id]: {
-              ...nodes[id],
-              content: splitedString[1]
-            }
+      // 有子节点的节点末尾，在所有子节点前创建一个新节点
+      if (!!node.children && !!node.children.length) {
+        this.props.dispatch(createNode({
+          id: newId,
+          parentId: id,
+          priority: 0
+        }));
+        // 通知更新光标位置
+        this.props.dispatch({
+          type: UPDATE_CURSOR,
+          payload: {
+            needUpdate: true,
+            id: newId,
+            position: 0
           }
-        }
-      });
-      // 通知更新光标位置
-      this.props.dispatch({
-        type: UPDATE_CURSOR,
-        payload: {
-          needUpdate: true,
-          id: id,
-          position: 0
-        }
-      })
+        })
+        return;
+      }
     }
+    if (splitedString[0] === '') {
+      // 在节点的开头，在节点的上面创建一个新节点
+      this.props.dispatch(
+        createNode({
+          id: newId,
+          parentId: node.parent,
+          priority: nodeIndex
+        }));
+      return;
+    }
+    // 在节点的中间
+    this.props.dispatch(createNode({
+      id: newId,
+      parentId: node.parent,
+      priority: nodeIndex
+    }));
+    this.props.dispatch(editNode({
+      id: newId,
+      content: splitedString[0]
+    }));
+    this.props.dispatch(editNode({
+      id,
+      content: splitedString[1]
+    }));
   }
 
   // 处理退格造成的节点合并
   handleMergeNode = id => text => {
-    const { contentData, dispatch, focusedNode } = this.props;
+    const { contentData } = this.props;
     const { nodes } = contentData;
-    const parentId = nodes[id].parent;
+    const node = nodes[id];
+    const parentId = node.parent;
     const parent = nodes[parentId];
-    // 找出node在parent.children里的index
-    const nodeIndex = nodes[parentId].children.indexOf(id);
-    if (nodeIndex === -1) {
-      console.error(`未在${parentId}中找到子节点${id}`);
-      return false;
-    }
-    if (nodeIndex === 0) {
-      // if (!!text.length) return;
-      // // 第一个空节点，则直接删除
-      // else {
-      //   handleDeleteNode(dispatch, UPDATE_DATA, contentData, focusedNode);
-      // }
+    const nodeIndex = parent.children.indexOf(id);
+    // 空节点，直接删除
+    if (text === '') {
+      this.props.dispatch(deleteNode({ id }));
       return;
     }
-
-    // 找出平级的上个节点
-    const brotherNode = nodes[nodes[parentId].children[nodeIndex - 1]];
-    // 如果是父节点中的第一个节点，或者上层节点是一个父节点，不作处理
+    // 是父元素的第一个节点，不处理
+    if (nodeIndex === 0) return;
+    const brotherNode = nodes[parent.children[nodeIndex - 1]];
+    // 其上个节点有子节点，不处理
     if (!!brotherNode.children && !!brotherNode.children.length) return;
-
-    const prevBrotherNodeContentLength = brotherNode.content.length;
-    this.props.dispatch({
-      type: UPDATE_DATA,
-      payload: {
-        ...contentData,
-        nodes: {
-          ...nodes,
-          [parentId]: {
-            ...parent,
-            children: [
-              ...parent.children.slice(0, nodeIndex - 1),
-              ...parent.children.slice(nodeIndex),
-            ]
-          },
-          [id]: {
-            ...nodes[id],
-            children: nodes[id].children,
-            content: `${brotherNode.content}${text}`
-          },
-        }
-      }
-    });
-    // 通知更新光标位置
+    // 其他，则删除上个节点，并编辑该节点为上个节点内容+此节点内容
+    this.props.dispatch(deleteNode({ id: brotherNode.id }));
+    this.props.dispatch(editNode({ id, content: brotherNode.content + text }));
     this.props.dispatch({
       type: UPDATE_CURSOR,
       payload: {
         needUpdate: true,
-        id: id,
-        position: prevBrotherNodeContentLength
+        position: brotherNode.content.length
       }
     })
   }

@@ -2,8 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import styles from './PathText.module.css';
-import { UPDATE_DATA } from 'actions';
-import { updateRoot } from 'utils/helper';
+import { updateRoot } from 'actions';
 import { connect } from 'react-redux';
 
 class PathText extends PureComponent {
@@ -11,7 +10,6 @@ class PathText extends PureComponent {
     text: PropTypes.string,
     clickable: PropTypes.bool,
     id: PropTypes.string,
-    contentData: PropTypes.object,
     dispatch: PropTypes.func
   }
 
@@ -20,7 +18,7 @@ class PathText extends PureComponent {
   }
 
   render() {
-    const { text, clickable, id, contentData, dispatch } = this.props;
+    const { text, clickable, id, dispatch } = this.props;
     const textClass = classnames({
       [styles.text]: true,
       [styles.clickable]: clickable
@@ -28,7 +26,7 @@ class PathText extends PureComponent {
     return (
       <span
         className={textClass}
-        onClick={updateRoot(dispatch, UPDATE_DATA, id, contentData)}
+        onClick={dispatch(updateRoot(id))}
       >
         {text}
       </span>
@@ -37,8 +35,7 @@ class PathText extends PureComponent {
 }
 
 export default connect(
-  ({ contentData }) => ({
-    contentData
+  () => ({
   }),
   dispatch => ({ dispatch })
 )(PathText)

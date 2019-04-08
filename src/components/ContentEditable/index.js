@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { htmlEntities, getCaretPosition } from 'utils/helper';
 import { connect } from 'react-redux';
-import { UPDATE_DATA, UPDATE_FOCUSED_NODE, UPDATE_CURSOR } from 'actions';
-import { handleIndentToLeft, handleIndentToRight } from 'utils/helper';
+import { UPDATE_FOCUSED_NODE, UPDATE_CURSOR } from 'actions';
+import { indentToLeft, indentToRight } from 'actions';
 
 class ContentEditable extends Component {
   static propTypes = {
@@ -15,8 +15,6 @@ class ContentEditable extends Component {
     html: PropTypes.string,
     className: PropTypes.string,
     dispatch: PropTypes.func,
-    contentData: PropTypes.object,
-    focusedNode: PropTypes.object
   }
 
   static defaultProps = {
@@ -43,16 +41,6 @@ class ContentEditable extends Component {
     }
   }
 
-  indentToLeft = () => {
-    const { dispatch, contentData, focusedNode } = this.props;
-    handleIndentToLeft(dispatch, UPDATE_DATA, UPDATE_CURSOR, contentData, focusedNode);
-  }
-
-  indentToRight = () => {
-    const { dispatch, contentData, focusedNode } = this.props;
-    handleIndentToRight(dispatch, UPDATE_DATA, UPDATE_CURSOR, contentData, focusedNode);
-  }
-
   hanldeKeyDown = e => {
     // 回车
     if (e.keyCode === 13) this.handleEnter(e);
@@ -72,7 +60,6 @@ class ContentEditable extends Component {
       e.preventDefault(); // 阻止默认回车行为
       const { anchorOffset, focusNode } = window.getSelection();
       const text = focusNode.textContent;
-      if (text.length === 0) return;
 
       // 获得光标前后的文本
       const textBeforeAnchor = text.slice(0, anchorOffset);
@@ -97,15 +84,13 @@ class ContentEditable extends Component {
   // 处理tab
   handleTab = e => {
     e.preventDefault();
-    const { dispatch, contentData, focusedNode } = this.props;
-    handleIndentToRight(dispatch, UPDATE_DATA, UPDATE_CURSOR, contentData, focusedNode);
+    this.props.dispatch(indentToRight())
   }
 
   // 处理shift+tab
   handleShiftTab = e => {
     e.preventDefault();
-    const { dispatch, contentData, focusedNode } = this.props;
-    handleIndentToLeft(dispatch, UPDATE_DATA, UPDATE_CURSOR, contentData, focusedNode);
+    this.props.dispatch(indentToLeft());
   }
 
   // 触发更新reducer
@@ -122,7 +107,6 @@ class ContentEditable extends Component {
   }
 
   updateFocusedNode = e => {
-    console.log('focused', this.props.id);
     this.props.dispatch({
       type: UPDATE_FOCUSED_NODE,
       payload: {
@@ -168,9 +152,7 @@ class ContentEditable extends Component {
 }
 
 export default connect(
-  ({ contentData, focusedNode }) => ({
-    contentData,
-    focusedNode
+  () => ({
   }),
   dispatch => ({ dispatch })
 )(ContentEditable)

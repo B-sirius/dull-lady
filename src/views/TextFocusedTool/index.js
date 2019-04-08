@@ -5,38 +5,23 @@ import indentLeftImg from 'assets/indent-decrease.svg';
 import indentRightImg from 'assets/indent-increase.svg';
 import trashImg from 'assets/trash.svg';
 import { connect } from 'react-redux';
-import { UPDATE_DATA, UPDATE_CURSOR } from 'actions';
-import { handleIndentToLeft, handleIndentToRight, handleDeleteNode } from 'utils/helper';
+import { indentToRight, indentToLeft, deleteNode } from 'actions';
 import styles from './TextFocusedTool.module.css';
 
 class TextFocusedTool extends PureComponent {
   static propTypes = {
     focusedNode: PropTypes.object,
-    contentData: PropTypes.object,
-    cursorPosition: PropTypes.object,
     dispatch: PropTypes.func
   }
 
-  indentToLeft = () => {
-    const { dispatch, contentData, focusedNode } = this.props;
-    handleIndentToLeft(dispatch, UPDATE_DATA, UPDATE_CURSOR, contentData, focusedNode);
-  }
-
-  indentToRight = () => {
-    const { dispatch, contentData, focusedNode } = this.props;
-    handleIndentToRight(dispatch, UPDATE_DATA, UPDATE_CURSOR, contentData, focusedNode);
-  }
-
   deleteNode = () => {
-    const { dispatch, contentData, focusedNode } = this.props;
-    handleDeleteNode(dispatch, UPDATE_DATA, contentData, focusedNode);
+    const { focusedNode } = this.props;
+    this.props.dispatch(deleteNode({ id: focusedNode.currId }));
   }
 
   render() {
     const {
       deleteNode,
-      indentToLeft,
-      indentToRight
     } = this;
 
     return (
@@ -65,9 +50,7 @@ class TextFocusedTool extends PureComponent {
 }
 
 export default connect(
-  ({ contentData, cursorPosition, focusedNode }) => ({
-    contentData,
-    cursorPosition,
+  ({ focusedNode }) => ({
     focusedNode
   }),
   dispatch => ({ dispatch })

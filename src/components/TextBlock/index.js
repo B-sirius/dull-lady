@@ -6,8 +6,7 @@ import Dot from 'components/Dot';
 import CollapseSwitch from 'components/CollapseSwitch';
 import ContentEditbale from 'components/ContentEditable';
 import styles from './TextBlock.module.css';
-import { UPDATE_DATA } from 'actions';
-import { updateRoot } from 'utils/helper';
+import { updateRoot } from 'actions';
 import { connect } from 'react-redux';
 
 class TextBlock extends PureComponent {
@@ -21,7 +20,6 @@ class TextBlock extends PureComponent {
     onMergeNode: PropTypes.func,
     childrenCollapsed: PropTypes.bool,
     handleSwitchToggle: PropTypes.func,
-    contentData: PropTypes.object,
   }
 
   static defaultProps = {
@@ -48,7 +46,6 @@ class TextBlock extends PureComponent {
       onMergeNode,
       id,
       dispatch,
-      contentData
     } = this.props;
 
     const textClass = classnames({
@@ -61,7 +58,7 @@ class TextBlock extends PureComponent {
         className={styles.container}
       >
         <Dot
-          onClick={updateRoot(dispatch, UPDATE_DATA, id, contentData)}
+          onClick={dispatch(updateRoot(id))}
         />
         <ContentEditbale
           id={id}
@@ -85,8 +82,7 @@ class TextBlock extends PureComponent {
 }
 
 export default connect(
-  ({ contentData }) => ({
-    contentData
+  () => ({
   }),
   dispatch => ({ dispatch })
 )(TextBlock)

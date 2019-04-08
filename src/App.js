@@ -3,7 +3,7 @@ import Global from 'views/Global';
 import { Provider } from 'react-redux';
 import configureStore from 'store';
 
-const store = configureStore({
+export const store = configureStore({
 });
 
 class App extends PureComponent {

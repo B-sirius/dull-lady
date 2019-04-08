@@ -3,8 +3,8 @@ import { PropTypes } from 'prop-types'
 import { connect } from 'react-redux';
 import Node from 'components/Node';
 import data from 'assets/demo.json';
-import { UPDATE_DATA, UPDATE_CURSOR, UPDATE_FOCUSED_NODE } from 'actions';
-import { updateCursor } from 'utils/helper';
+import { UPDATE_DATA, UPDATE_FOCUSED_NODE } from 'actions';
+import { updateCursor } from 'actions';
 import uuidv1 from 'uuid/v1';
 import styles from './Main.module.css';
 
@@ -22,7 +22,7 @@ class Main extends PureComponent {
 
   componentDidUpdate() {
     const { cursorPosition, dispatch } = this.props;
-    if (cursorPosition.needUpdate) updateCursor(dispatch, UPDATE_CURSOR, cursorPosition);
+    if (cursorPosition.needUpdate) dispatch(updateCursor());
   }
 
   initContentData = () => {
