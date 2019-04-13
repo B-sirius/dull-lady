@@ -1,6 +1,10 @@
+import backend from 'backend';
+
 export const UPDATE_DATA = 'UPDATE_DATA';
 export const UPDATE_CURSOR = 'UPDATE_CURSOR';
 export const UPDATE_FOCUSED_NODE = 'UPDATE_FOCUSED_NODE';
+export const UPDATE_REQUEST_QUEUE = 'UPDATE_REQUEST_QUEUE';
+export const ADD_REQUEST = 'ADD_REQUEST';
 
 // 更新root节点，即切换子层级显示
 export const updateRoot = id => (dispatch, getState) => () => {
@@ -145,6 +149,17 @@ export const editNode = ({ id, content }) => (dispatch, getState) => {
       }
     }
   })
+  // 发送后端同步请求
+  dispatch({
+    type: ADD_REQUEST,
+    payload: {
+      request: backend.editNode,
+      args: {
+        id,
+        content
+      }
+    }
+  });
 }
 
 export const deleteNode = ({ id }) => (dispatch, getState) => {
@@ -244,4 +259,16 @@ export const createNode = ({ id, parentId, priority }) => (dispatch, getState) =
       }
     }
   })
+  // 发送后端同步请求
+  dispatch({
+    type: ADD_REQUEST,
+    payload: {
+      request: backend.addNode,
+      args: {
+        id,
+        parentId,
+        priority: 0
+      }
+    }
+  });
 }

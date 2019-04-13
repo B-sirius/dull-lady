@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { UPDATE_DATA, UPDATE_CURSOR } from 'actions';
+import { UPDATE_CURSOR, createNode } from 'actions';
 import { connect } from 'react-redux';
 import { PropTypes } from 'prop-types'
 import uuid from 'uuid/v1';
@@ -11,35 +11,18 @@ class AddBtn extends PureComponent {
     contentData: PropTypes.object,
     dispatch: PropTypes.func
   }
-  
+
   addNodeAtTop = () => {
-    const { contentData } = this.props;
-    const { nodes, rootId } = contentData;
-    const rootNode = nodes[rootId];
+    const { contentData, dispatch } = this.props;
+    const { rootId } = contentData;
     const newId = uuid();
-    const rootChildren = rootNode.children || [];
-    this.props.dispatch({
-      type: UPDATE_DATA,
-      payload: {
-        ...contentData,
-        nodes: {
-          ...nodes,
-          [rootId]: {
-            ...rootNode,
-            children: [
-              newId,
-              ...rootChildren
-            ]
-          },
-          [newId]: {
-            id: newId,
-            content: '',
-            parent: rootId
-          }
-        }
-      }
-    });
-    this.props.dispatch({
+    dispatch(
+      createNode({
+        id: newId,
+        parentId: rootId,
+        priority: 0
+      }));
+    dispatch({
       type: UPDATE_CURSOR,
       payload: {
         id: newId,
@@ -58,7 +41,7 @@ class AddBtn extends PureComponent {
         className={styles.container}
         onClick={addNodeAtTop}
       >
-        <img className={styles.addNodeImg} src={addNodeImg} alt="添加节点"/>
+        <img className={styles.addNodeImg} src={addNodeImg} alt="添加节点" />
       </div>
     );
   }

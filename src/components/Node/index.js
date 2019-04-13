@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { UPDATE_CURSOR } from 'actions';
 import { editNode, deleteNode, createNode } from 'actions';
 import uuidv1 from 'uuid/v1';
+import once from 'utils/once';
 import TextBlock from 'components/TextBlock';
 import styles from './Node.module.css';
 
@@ -32,10 +33,13 @@ class Node extends PureComponent {
   }
 
   // 处理节点文本变化
-  handleContentChange = id => e => {
-    const { value } = e.target;
-    this.props.dispatch(editNode({ id, content: value }));
-  }
+  handleContentChange = id => once(
+    e => {
+      const { value } = e.target;
+      this.props.dispatch(editNode({ id, content: value }));
+    },
+    1000
+  )
 
   // 处理回车，将分割内容并创建新节点
   handleEnter = id => splitedString => {

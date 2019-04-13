@@ -2,7 +2,9 @@ import { combineReducers } from 'redux';
 import {
   UPDATE_DATA,
   UPDATE_CURSOR,
-  UPDATE_FOCUSED_NODE
+  UPDATE_FOCUSED_NODE,
+  UPDATE_REQUEST_QUEUE,
+  ADD_REQUEST
 } from 'actions';
 
 function contentData(
@@ -68,9 +70,24 @@ function focusedNode(
   }
 }
 
+function requestQueue(
+  state = [],
+  action
+) {
+  const { type, payload } = action;
+  switch (type) {
+    case UPDATE_REQUEST_QUEUE:
+      return [...payload];
+    case ADD_REQUEST:
+      return [...state, payload]
+    default: return state;
+  }
+}
+
 export default combineReducers({
   global: (state = {}) => state,
   contentData,
   cursorPosition,
-  focusedNode
+  focusedNode,
+  requestQueue
 });
