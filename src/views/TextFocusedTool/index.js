@@ -14,6 +14,14 @@ class TextFocusedTool extends PureComponent {
     dispatch: PropTypes.func
   }
 
+  toLeft = () => {
+    this.props.dispatch(indentToLeft())
+  }
+
+  toRight = () => {
+    this.props.dispatch(indentToRight())
+  }
+
   deleteNode = () => {
     const { focusedNode } = this.props;
     this.props.dispatch(deleteNode({ id: focusedNode.currId }));
@@ -21,20 +29,22 @@ class TextFocusedTool extends PureComponent {
 
   render() {
     const {
-      deleteNode,
+      toLeft,
+      toRight,
+      deleteNode
     } = this;
 
     return (
       <div className={styles.container}>
         <div
           className={styles.button}
-          onClick={indentToLeft}
+          onClick={toLeft}
         >
           <img className={styles.btnImg} src={indentLeftImg} alt="左缩进" />
         </div>
         <div
           className={styles.button}
-          onClick={indentToRight}
+          onClick={toRight}
         >
           <img className={styles.btnImg} src={indentRightImg} alt="右缩进" />
         </div>

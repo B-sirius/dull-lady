@@ -150,7 +150,6 @@ export const editNode = ({ id, content }) => (dispatch, getState) => {
     }
   })
   // 发送后端同步请求
-  console.log('comein')
   dispatch({
     type: ADD_REQUEST,
     payload: {
@@ -189,7 +188,6 @@ export const deleteNode = ({ id }) => (dispatch, getState) => {
       }
     }
   })
-  console.log('what?')
   // 发送后端同步请求
   dispatch({
     type: ADD_REQUEST,
@@ -261,7 +259,6 @@ export const createNode = ({ id, parentId, priority }) => (dispatch, getState) =
   const { contentData } = getState();
   const { nodes } = contentData;
   const parent = nodes[parentId];
-  debugger;
   dispatch({
     type: UPDATE_DATA,
     payload: {

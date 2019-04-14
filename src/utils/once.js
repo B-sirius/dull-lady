@@ -4,7 +4,6 @@ export default function once(func, wait = 100) {
   let timeout = null; // 记录setTimeout
   let previous = 0; // 上次试图调用的时间点
   let later = function () {
-    console.log(previous);
     result = func.apply(context, args);
 
     previous = Date.now(); // 真正执行，重设previous
