@@ -137,7 +137,7 @@ class ContentEditable extends Component {
         id={id}
         className={className}
         onInput={emitChange}
-        onBlur={emitChange}
+        onBlur={() => {}}
         onFocus={updateFocusedNode}
         onClick={trackCursorPosition}
         contentEditable

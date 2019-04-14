@@ -150,6 +150,7 @@ export const editNode = ({ id, content }) => (dispatch, getState) => {
     }
   })
   // 发送后端同步请求
+  console.log('comein')
   dispatch({
     type: ADD_REQUEST,
     payload: {
@@ -188,6 +189,17 @@ export const deleteNode = ({ id }) => (dispatch, getState) => {
       }
     }
   })
+  console.log('what?')
+  // 发送后端同步请求
+  dispatch({
+    type: ADD_REQUEST,
+    payload: {
+      request: backend.deleteNode,
+      args: {
+        id
+      }
+    }
+  });
 }
 
 export const moveNode = ({ id, parentId, priority }) => (dispatch, getState) => {
@@ -231,12 +243,25 @@ export const moveNode = ({ id, parentId, priority }) => (dispatch, getState) => 
       }
     }
   })
+  // 发送后端同步请求
+  dispatch({
+    type: ADD_REQUEST,
+    payload: {
+      request: backend.moveNode,
+      args: {
+        id,
+        parentId,
+        priority
+      }
+    }
+  });
 }
 
 export const createNode = ({ id, parentId, priority }) => (dispatch, getState) => {
   const { contentData } = getState();
   const { nodes } = contentData;
   const parent = nodes[parentId];
+  debugger;
   dispatch({
     type: UPDATE_DATA,
     payload: {
@@ -246,7 +271,8 @@ export const createNode = ({ id, parentId, priority }) => (dispatch, getState) =
         [id]: {
           id,
           parent: parentId,
-          content: ''
+          content: '',
+          children: []
         },
         [parentId]: {
           ...parent,
@@ -258,7 +284,7 @@ export const createNode = ({ id, parentId, priority }) => (dispatch, getState) =
         }
       }
     }
-  })
+  });
   // 发送后端同步请求
   dispatch({
     type: ADD_REQUEST,
@@ -267,7 +293,7 @@ export const createNode = ({ id, parentId, priority }) => (dispatch, getState) =
       args: {
         id,
         parentId,
-        priority: 0
+        priority
       }
     }
   });

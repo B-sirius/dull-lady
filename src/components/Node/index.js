@@ -49,8 +49,9 @@ class Node extends PureComponent {
     const parent = nodes[node.parent];
     const nodeIndex = parent.children.indexOf(id);
     const newId = uuidv1();
+
     if (splitedString[1] === '') {
-      // 没有子节点的节点末尾，创建一个一个新节点
+      // 没有子节点的节点末尾，创建一个新节点
       if (!node.children || !node.children.length) {
         this.props.dispatch(
           createNode({
@@ -125,7 +126,18 @@ class Node extends PureComponent {
     // 空节点，直接删除
     if (text === '') {
       this.props.dispatch(deleteNode({ id }));
-      return;
+      if (nodeIndex !== 0) {
+        const brotherNode = nodes[parent.children[nodeIndex - 1]];
+        this.props.dispatch({
+          type: UPDATE_CURSOR,
+          payload: {
+            needUpdate: true,
+            id: brotherNode.id,
+            position: brotherNode.content.length
+          }
+        })
+        return;
+      }
     }
     // 是父元素的第一个节点，不处理
     if (nodeIndex === 0) return;
@@ -139,6 +151,7 @@ class Node extends PureComponent {
       type: UPDATE_CURSOR,
       payload: {
         needUpdate: true,
+        id: brotherNode.id,
         position: brotherNode.content.length
       }
     })

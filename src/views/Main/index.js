@@ -21,12 +21,14 @@ class Main extends PureComponent {
     this.init();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const { cursorPosition, dispatch } = this.props;
     // 更新光标位置
     if (cursorPosition.needUpdate) dispatch(updateCursor());
     // 控制请求队列
-    this.handleRequestQueue();
+    if (this.props.requestQueue !== prevProps.requestQueue) {
+      this.handleRequestQueue();
+    }
   }
 
   handleRequestQueue = async () => {
@@ -34,6 +36,7 @@ class Main extends PureComponent {
     if (requestQueue.length > 0) {
       const { request, args } = requestQueue[0];
       const { error } = await fetchWrapper(request(args));
+      console.log('trigger');
       if (error) throw error;
       this.props.dispatch({
         type: UPDATE_REQUEST_QUEUE,
@@ -53,6 +56,7 @@ class Main extends PureComponent {
       const cal2 = await fetchWrapper(backend.initRoot({ id: rootId }));
       if (cal2.error) throw cal2.error;
       const { node } = cal2.res.data;
+      console.log(node);
       nodes.push(node);
     }
     // 获取root
