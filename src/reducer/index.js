@@ -4,8 +4,26 @@ import {
   UPDATE_CURSOR,
   UPDATE_FOCUSED_NODE,
   UPDATE_REQUEST_QUEUE,
-  ADD_REQUEST
+  ADD_REQUEST,
+  UPDATE_NETWORK_STATE
 } from 'actions';
+
+function networkCondition(
+  state = {
+    isOnline: true
+  },
+  action
+) {
+  const { type, payload } = action;
+  switch (type) {
+    case UPDATE_NETWORK_STATE:
+      return {
+        ...payload
+      }
+    default:
+      return state;
+  }
+}
 
 function contentData(
   state = {
@@ -64,7 +82,7 @@ function focusedNode(
   const { type, payload } = action;
   switch (type) {
     case UPDATE_FOCUSED_NODE:
-      return {...payload}
+      return { ...payload }
     default:
       return state;
   }
@@ -89,5 +107,6 @@ export default combineReducers({
   contentData,
   cursorPosition,
   focusedNode,
-  requestQueue
+  requestQueue,
+  networkCondition
 });

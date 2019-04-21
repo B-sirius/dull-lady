@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "classnames": "^2.2.6",
+    "http-server": "^0.11.1",
     "immutable": "^4.0.0-rc.12",
     "normalizr": "^3.3.0",
     "react": "^16.8.4",
@@ -19,7 +20,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "start-sw": "http-server ./build"
   },
   "eslintConfig": {
     "extends": "react-app"

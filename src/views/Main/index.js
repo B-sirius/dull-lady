@@ -14,7 +14,8 @@ class Main extends PureComponent {
     contentData: PropTypes.object,
     cursorPosition: PropTypes.object,
     focusedNode: PropTypes.object,
-    requestQueue: PropTypes.array
+    requestQueue: PropTypes.array,
+    networkCondition: PropTypes.object
   }
 
   componentDidMount() {
@@ -112,11 +113,12 @@ class Main extends PureComponent {
 }
 
 export default connect(
-  ({ contentData, cursorPosition, focusedNode, requestQueue }) => ({
+  ({ contentData, cursorPosition, focusedNode, requestQueue, networkCondition }) => ({
     contentData,
     cursorPosition,
     focusedNode,
-    requestQueue
+    requestQueue,
+    networkCondition
   }),
   dispatch => ({ dispatch })
 )(Main)

@@ -5,6 +5,7 @@ export const UPDATE_CURSOR = 'UPDATE_CURSOR';
 export const UPDATE_FOCUSED_NODE = 'UPDATE_FOCUSED_NODE';
 export const UPDATE_REQUEST_QUEUE = 'UPDATE_REQUEST_QUEUE';
 export const ADD_REQUEST = 'ADD_REQUEST';
+export const UPDATE_NETWORK_STATE = 'UPDATE_NETWORK_STATE';
 
 // 更新root节点，即切换子层级显示
 export const updateRoot = id => (dispatch, getState) => () => {
@@ -294,4 +295,17 @@ export const createNode = ({ id, parentId, priority }) => (dispatch, getState) =
       }
     }
   });
+}
+
+// 更新网络状态
+export const updateNetworkCondition = ({ isOnline }) => (dispatch, getState) => {
+  const { networkCondition } = getState();
+  if (networkCondition.isOnline !== isOnline) {
+    dispatch({
+      type: UPDATE_NETWORK_STATE,
+      payload: {
+        isOnline
+      }
+    })
+  }
 }

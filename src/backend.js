@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const domain = 'http://localhost:4000';
+const domain = `http://${window.location.hostname}:4000`;
 
 const getAllNodes = () => axios.get(domain + '/api/nodes');
 

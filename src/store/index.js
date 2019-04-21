@@ -18,4 +18,4 @@ function configureStore(preloadedState = {}) {
 
     return store;
 }
-export default configureStore;
+export default configureStore({});;
