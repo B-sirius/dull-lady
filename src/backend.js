@@ -2,6 +2,26 @@ import axios from 'axios';
 
 const domain = `http://${window.location.hostname}:4000`;
 
+axios.defaults.withCredentials = true;
+
+const createUser = ({ username, password }) => axios.post(
+  domain + '/api/createuser',
+  { username, password }
+);
+
+const logIn = ({ username, password }) => axios.post(
+  domain + '/api/login',
+  { username, password }
+);
+
+const logOut = () => axios.post(
+  domain + '/api/logout',
+)
+
+const getUser = () => axios.get(domain + '/api/user');
+
+const getUpdatedTime = () => axios(domain + '/api/updatedtime');
+
 const getAllNodes = () => axios.get(domain + '/api/nodes');
 
 const initRoot = ({ id }) => axios.post(
@@ -33,6 +53,15 @@ const moveNode = ({ id, parentId, priority }) => axios.post(
   { id, parentId, priority }
 );
 
+const pushLocalData = ({ contentData }) => {
+  const { nodes } = contentData;
+  const nodesArr = Object.keys(nodes).map(key => nodes[key]);
+  return axios.post(
+    domain + '/api/syncfromlocal',
+    { nodesArr }
+  )
+}
+
 export default {
   getAllNodes,
   getRoot,
@@ -40,5 +69,11 @@ export default {
   addNode,
   deleteNode,
   editNode,
-  moveNode
+  moveNode,
+  logIn,
+  logOut,
+  getUser,
+  createUser,
+  pushLocalData,
+  getUpdatedTime
 }

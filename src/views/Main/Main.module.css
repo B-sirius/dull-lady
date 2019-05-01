@@ -2,5 +2,11 @@
   position: relative;
   flex-grow: 1;
   overflow-y: scroll;
+  overflow-x: -moz-scrollbars-none;
+  -ms-overflow-style: none;
   padding: 0 24px;
+}
+
+.container::-webkit-scrollbar {
+  width: 0 !important
 }

@@ -118,7 +118,7 @@ class Node extends PureComponent {
   // 处理退格造成的节点合并
   handleMergeNode = id => text => {
     const { contentData } = this.props;
-    const { nodes } = contentData;
+    const { nodes, rootId } = contentData;
     const node = nodes[id];
     const parentId = node.parent;
     const parent = nodes[parentId];
@@ -126,7 +126,21 @@ class Node extends PureComponent {
     // 空节点，直接删除
     if (text === '') {
       this.props.dispatch(deleteNode({ id }));
-      if (nodeIndex !== 0) {
+      // 父节点的第一个子节点，且父节点非根节点
+      // 则光标移到父节点末尾
+      if (parentId !== rootId && nodeIndex === 0) {
+        this.props.dispatch({
+          type: UPDATE_CURSOR,
+          payload: {
+            needUpdate: true,
+            id: parentId,
+            position: parent.content.length
+          }
+        })
+        return;
+      }
+      // 有上级兄弟节点，光标移到兄弟节点后
+      else if (nodeIndex !== 0) {
         const brotherNode = nodes[parent.children[nodeIndex - 1]];
         this.props.dispatch({
           type: UPDATE_CURSOR,
@@ -136,8 +150,8 @@ class Node extends PureComponent {
             position: brotherNode.content.length
           }
         })
-        return;
       }
+      return;
     }
     // 是父元素的第一个节点，不处理
     if (nodeIndex === 0) return;

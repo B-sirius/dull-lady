@@ -8,9 +8,15 @@
 
 .pathContainer {
   flex-grow: 1;
+  -ms-overflow-style: none;
   overflow-x: scroll;
+  overflow-x: -moz-scrollbars-none;
   display: flex;
   align-items: center;
+}
+
+.pathContainer::-webkit-scrollbar {
+  width: 0 !important
 }
 
 .splitLine {

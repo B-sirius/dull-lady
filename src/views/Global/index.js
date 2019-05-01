@@ -5,8 +5,9 @@ import Warning from 'views/Warning';
 import Header from 'views/Header';
 import Main from 'views/Main';
 import Footer from 'views/Footer';
-import styles from './Global.module.css';
+import Setting from 'views/Setting';
 import AddBtn from 'components/AddBtn';
+import styles from './Global.module.css';
 
 class Global extends PureComponent {
   static propTypes = {
@@ -35,6 +36,7 @@ class Global extends PureComponent {
         {
           !isNodeFocused() && <AddBtn />
         }
+        <Setting />
       </div>
     );
   }

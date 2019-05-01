@@ -2,11 +2,12 @@ import React, { PureComponent } from 'react';
 import { PropTypes } from 'prop-types'
 import { connect } from 'react-redux';
 import Node from 'components/Node';
-import { UPDATE_DATA, UPDATE_FOCUSED_NODE, UPDATE_REQUEST_QUEUE, updateCursor } from 'actions';
+import { UPDATE_DATA, UPDATE_FOCUSED_NODE, UPDATE_REQUEST_QUEUE, updateCursor, updateUser } from 'actions';
 import fetchWrapper from 'utils/fetchWrapper';
 import uuidv1 from 'uuid/v1';
 import backend from 'backend';
 import styles from './Main.module.css';
+import history from 'utils/history';
 
 class Main extends PureComponent {
   static propTypes = {
@@ -15,6 +16,7 @@ class Main extends PureComponent {
     cursorPosition: PropTypes.object,
     focusedNode: PropTypes.object,
     requestQueue: PropTypes.array,
+    userInfo: PropTypes.object,
     networkCondition: PropTypes.object
   }
 
@@ -22,13 +24,20 @@ class Main extends PureComponent {
     this.init();
   }
 
-  componentDidUpdate(prevProps) {
-    const { cursorPosition, dispatch } = this.props;
+  async componentDidUpdate(prevProps) {
+    const { cursorPosition, dispatch, networkCondition } = this.props;
     // 更新光标位置
     if (cursorPosition.needUpdate) dispatch(updateCursor());
     // 控制请求队列
     if (this.props.requestQueue !== prevProps.requestQueue) {
       this.handleRequestQueue();
+    }
+    // 离线->在线
+    if (this.props.networkCondition.isOnline && !prevProps.networkCondition.isOnline) {
+      const local = JSON.parse(localStorage.getItem('localData'));
+      const remoteTime = await fetchWrapper(backend.getUpdatedTime());
+      console.log(local);
+      console.log(remoteTime);
     }
   }
 
@@ -45,7 +54,19 @@ class Main extends PureComponent {
     }
   }
 
-  init = async () => {
+  // 初始化用户
+  initUser = async () => {
+    const { error, res } = await fetchWrapper(backend.getUser());
+    if (error) {
+      history.push('/login');
+      return;
+    }
+    const { username } = res.data;
+    this.props.dispatch(updateUser({ username }))();
+  }
+
+  // 初始化节点
+  initNodes = async () => {
     // 获得所有节点
     const { error, res } = await fetchWrapper(backend.getAllNodes());
     if (error) throw error;
@@ -75,7 +96,27 @@ class Main extends PureComponent {
         rootId: root.id,
         nodes: nodesMap
       }
-    })
+    });
+  }
+
+  initLocalStorage = () => {
+    const { userInfo, contentData } = this.props;
+    window.addEventListener('unload', () => {
+      localStorage.setItem(
+        'localData',
+        JSON.stringify({
+          name: userInfo.username,
+          localUpdatedTime: new Date(),
+          nodes: contentData.nodes
+        })
+      )
+    });
+  }
+
+  init = async () => {
+    await this.initUser();
+    await this.initNodes();
+    this.initLocalStorage();
   }
 
   blurFocus = e => {
@@ -113,11 +154,12 @@ class Main extends PureComponent {
 }
 
 export default connect(
-  ({ contentData, cursorPosition, focusedNode, requestQueue, networkCondition }) => ({
+  ({ contentData, cursorPosition, focusedNode, requestQueue, userInfo, networkCondition }) => ({
     contentData,
     cursorPosition,
     focusedNode,
     requestQueue,
+    userInfo,
     networkCondition
   }),
   dispatch => ({ dispatch })

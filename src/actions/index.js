@@ -1,11 +1,39 @@
 import backend from 'backend';
-
+export const UPDATE_USER = 'UPDATE_USER'
 export const UPDATE_DATA = 'UPDATE_DATA';
 export const UPDATE_CURSOR = 'UPDATE_CURSOR';
 export const UPDATE_FOCUSED_NODE = 'UPDATE_FOCUSED_NODE';
 export const UPDATE_REQUEST_QUEUE = 'UPDATE_REQUEST_QUEUE';
 export const ADD_REQUEST = 'ADD_REQUEST';
 export const UPDATE_NETWORK_STATE = 'UPDATE_NETWORK_STATE';
+export const UPDATE_SETTING_STATE = 'UPDATE_SETTING_STATE';
+
+export const updateUser = ({ username }) => (dispatch) => () => {
+  dispatch({
+    type: UPDATE_USER,
+    payload: { username }
+  })
+}
+
+// 打开设置
+export const openSetting = () => (dispatch) => () => {
+  dispatch({
+    type: UPDATE_SETTING_STATE,
+    payload: {
+      active: true
+    }
+  });
+}
+
+// 关闭设置
+export const closeSetting = () => (dispatch) => () => {
+  dispatch({
+    type: UPDATE_SETTING_STATE,
+    payload: {
+      active: false
+    }
+  });
+}
 
 // 更新root节点，即切换子层级显示
 export const updateRoot = id => (dispatch, getState) => () => {
@@ -35,7 +63,6 @@ export const updateCursor = () => (dispatch, getState) => {
   const el = document.getElementById(id);
   const range = document.createRange();
   const sel = window.getSelection();
-
   if (el.childNodes.length) {
     range.setStart(el.childNodes[0], position);
   }
@@ -173,22 +200,34 @@ export const deleteNode = ({ id }) => (dispatch, getState) => {
     console.error(`未在${parent.id}中找到子节点${id}`);
     return false;
   }
+  const newNodesMap = {
+    ...nodes,
+    [parentId]: {
+      ...parent,
+      children: [
+        ...parent.children.slice(0, nodeIndex),
+        ...parent.children.slice(nodeIndex + 1)
+      ]
+    }
+  };
+  // 完整的删除子树
+  let toDeleteKeys = [...nodes[id].children];
+  while(!!toDeleteKeys.length) {
+    const key = toDeleteKeys.pop();
+    if (!!nodes[key].children.length) {
+      toDeleteKeys = [...toDeleteKeys, ...nodes[key].children]
+    }
+    delete newNodesMap[key];
+  }
+
   dispatch({
     type: UPDATE_DATA,
     payload: {
       ...contentData,
-      nodes: {
-        ...nodes,
-        [parentId]: {
-          ...parent,
-          children: [
-            ...parent.children.slice(0, nodeIndex),
-            ...parent.children.slice(nodeIndex + 1)
-          ]
-        }
-      }
+      nodes: newNodesMap
     }
   })
+
   // 发送后端同步请求
   dispatch({
     type: ADD_REQUEST,

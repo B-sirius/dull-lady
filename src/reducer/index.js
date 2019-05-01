@@ -5,8 +5,44 @@ import {
   UPDATE_FOCUSED_NODE,
   UPDATE_REQUEST_QUEUE,
   ADD_REQUEST,
-  UPDATE_NETWORK_STATE
+  UPDATE_NETWORK_STATE,
+  UPDATE_SETTING_STATE,
+  UPDATE_USER
 } from 'actions';
+
+function userInfo(
+  state = {
+    username: null
+  },
+  action
+) {
+  const { type, payload } = action;
+  switch (type) {
+    case UPDATE_USER:
+      return {
+        ...payload
+      }
+    default:
+      return state;
+  }
+}
+
+function settingState(
+  state = {
+    active: false
+  },
+  action
+) {
+  const { type, payload } = action;
+  switch (type) {
+    case UPDATE_SETTING_STATE:
+      return {
+        ...payload
+      }
+    default:
+      return state;
+  }
+}
 
 function networkCondition(
   state = {
@@ -33,7 +69,8 @@ function contentData(
       '11111111-d540-03c2-ecd5-cb5c391484e': {
         id: '11111111-d540-03c2-ecd5-cb5c391484e',
         content: 'Home',
-        children: []
+        children: [],
+        isRoot: true
       }
     }
   },
@@ -108,5 +145,7 @@ export default combineReducers({
   cursorPosition,
   focusedNode,
   requestQueue,
-  networkCondition
+  networkCondition,
+  settingState,
+  userInfo
 });
