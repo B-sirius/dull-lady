@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { PropTypes } from 'prop-types'
 import { connect } from 'react-redux';
 import Node from 'components/Node';
-import { UPDATE_DATA, UPDATE_FOCUSED_NODE, UPDATE_REQUEST_QUEUE, updateCursor, updateUser } from 'actions';
+import { UPDATE_DATA, UPDATE_FOCUSED_NODE, UPDATE_REQUEST_QUEUE, updateCursor, updateUser, updateNetworkCondition } from 'actions';
 import fetchWrapper from 'utils/fetchWrapper';
 import uuidv1 from 'uuid/v1';
 import backend from 'backend';
@@ -33,11 +33,27 @@ class Main extends PureComponent {
       this.handleRequestQueue();
     }
     // 离线->在线
-    if (this.props.networkCondition.isOnline && !prevProps.networkCondition.isOnline) {
-      const local = JSON.parse(localStorage.getItem('localData'));
-      const remoteTime = await fetchWrapper(backend.getUpdatedTime());
-      console.log(local);
-      console.log(remoteTime);
+    if (networkCondition.isOnline && !prevProps.networkCondition.isOnline) {
+      this.handleOffline2Online();
+    }
+  }
+
+  handleOffline2Online = async () => {
+    const { contentData, userInfo } = this.props;
+    const local = JSON.parse(localStorage.getItem('localData'));
+    const { err, res } = await fetchWrapper(backend.getUpdatedTime());
+    if (err) throw err;
+    const remoteDate = new Date(res.data.date);
+    const localDate = new Date(local.localUpdatedTime);
+    // 远端记录与本地记录比较
+    if (remoteDate - localDate > 0) {
+      // 远程同步本地
+      this.initNodes();
+    }
+    else {
+      // 同步远程
+      const { error } = await fetchWrapper(backend.pushLocalData({ contentData }));
+      if (error) throw error;
     }
   }
 
@@ -56,47 +72,82 @@ class Main extends PureComponent {
 
   // 初始化用户
   initUser = async () => {
-    const { error, res } = await fetchWrapper(backend.getUser());
-    if (error) {
-      history.push('/login');
-      return;
+    if (!navigator.onLine) {
+      let localData = localStorage.getItem('localData');
+      if (!localData) history.push('/login');
+      else {
+        localData = JSON.parse(localData);
+        const { username } = localData;
+        this.props.dispatch(updateUser({ username }))
+      };
     }
-    const { username } = res.data;
-    this.props.dispatch(updateUser({ username }))();
+    else {
+      const { error, res } = await fetchWrapper(backend.getUser());
+      if (error) {
+        history.push('/login');
+        return;
+      }
+      const { username } = res.data;
+      this.props.dispatch(updateUser({ username }))();
+    }
   }
 
   // 初始化节点
   initNodes = async () => {
-    // 获得所有节点
-    const { error, res } = await fetchWrapper(backend.getAllNodes());
-    if (error) throw error;
-    const { nodes } = res.data;
-    // 没有节点，则需要初始root
-    if (!nodes.length) {
-      const rootId = uuidv1();
-      const cal2 = await fetchWrapper(backend.initRoot({ id: rootId }));
-      if (cal2.error) throw cal2.error;
-      const { node } = cal2.res.data;
-      nodes.push(node);
-    }
-    // 获取root
-    const cal3 = await fetchWrapper(backend.getRoot());
-    if (cal3.error) throw cal3.error;
-    const root = cal3.res.data.node[0];
-    if (!root) throw new Error({ logMsg: '找不到父节点' });
-    // 初始化前端使用的节点数据结构
-    const nodesMap = {};
-    for (let item of nodes) {
-      nodesMap[item.id] = item;
-    }
-    this.props.dispatch({
-      type: UPDATE_DATA,
-      payload: {
-        path: [root.id],
-        rootId: root.id,
-        nodes: nodesMap
+    // 离线
+    if (!navigator.onLine) {
+      let localData = localStorage.getItem('localData');
+      const { nodes } = JSON.parse(localData);
+      let root;
+      for (let key of Object.keys(nodes)) {
+        const node = nodes[key];
+        if (node.isRoot) {
+          root = node;
+          break;
+        }
       }
-    });
+      this.props.dispatch({
+        type: UPDATE_DATA,
+        payload: {
+          path: [root.id],
+          rootId: root.id,
+          nodes
+        }
+      });
+    }
+    // 在线
+    else {
+      // 获得所有节点
+      const { error, res } = await fetchWrapper(backend.getAllNodes());
+      if (error) throw error;
+      const { nodes } = res.data;
+      // 没有节点，则需要初始root
+      if (!nodes.length) {
+        const rootId = uuidv1();
+        const cal2 = await fetchWrapper(backend.initRoot({ id: rootId }));
+        if (cal2.error) throw cal2.error;
+        const { node } = cal2.res.data;
+        nodes.push(node);
+      }
+      // 获取root
+      const cal3 = await fetchWrapper(backend.getRoot());
+      if (cal3.error) throw cal3.error;
+      const root = cal3.res.data.node[0];
+      if (!root) throw new Error({ logMsg: '找不到父节点' });
+      // 初始化前端使用的节点数据结构
+      const nodesMap = {};
+      for (let item of nodes) {
+        nodesMap[item.id] = item;
+      }
+      this.props.dispatch({
+        type: UPDATE_DATA,
+        payload: {
+          path: [root.id],
+          rootId: root.id,
+          nodes: nodesMap
+        }
+      });
+    }
   }
 
   initLocalStorage = () => {
@@ -114,6 +165,12 @@ class Main extends PureComponent {
   }
 
   init = async () => {
+    window.addEventListener('offline', () => {
+      this.dispatch(updateNetworkCondition({ isOnline: false }))
+    });
+    window.addEventListener('online', () => {
+      this.dispatch(updateNetworkCondition({ isOnline: true }))
+    });
     await this.initUser();
     await this.initNodes();
     this.initLocalStorage();

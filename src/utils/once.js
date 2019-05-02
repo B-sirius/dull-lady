@@ -6,7 +6,7 @@ export default function once(func, wait = 100) {
   let later = function () {
     result = func.apply(context, args);
 
-    previous = Date.now(); // 真正执行，重设previous
+    previous = null; // 真正执行，重设previous
     timeout = null; // 重设timeout
     context = args = null;
   };

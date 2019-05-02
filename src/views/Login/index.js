@@ -41,13 +41,17 @@ class Login extends PureComponent {
     const res = await backend.logIn({ username, password });
     if (res.status === 200 && res.data.state === LOGIN_STATE.OK) {
       history.push({ pathname: '/' });
+      return;
     }
     if (res.status === 200 && res.data.state === LOGIN_STATE.NOT_REGISTERED) {
       this.createUser({ username, password });
+      return;
     }
     if (res.status === 200 && res.data.state === LOGIN_STATE.WRONG_PASS) {
       this.props.alert.error('密码错误');
+      return;
     }
+    this.props.alert.error('请求失败');
   }
 
   createUser = async ({ username, password }) => {
@@ -58,7 +62,7 @@ class Login extends PureComponent {
   }
 
   render() {
-    const { dispatch, settingState } = this.props;
+    const { settingState } = this.props;
     const { username, password } = this.state;
     const { setUsername, setPassword, logIn } = this;
     const containerClass = classnames({

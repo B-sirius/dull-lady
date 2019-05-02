@@ -1,4 +1,6 @@
 import backend from 'backend';
+import once from 'utils/once';
+import store from 'store';
 export const UPDATE_USER = 'UPDATE_USER'
 export const UPDATE_DATA = 'UPDATE_DATA';
 export const UPDATE_CURSOR = 'UPDATE_CURSOR';
@@ -7,6 +9,21 @@ export const UPDATE_REQUEST_QUEUE = 'UPDATE_REQUEST_QUEUE';
 export const ADD_REQUEST = 'ADD_REQUEST';
 export const UPDATE_NETWORK_STATE = 'UPDATE_NETWORK_STATE';
 export const UPDATE_SETTING_STATE = 'UPDATE_SETTING_STATE';
+
+const onceDispatchEdit = once(
+  ({ id, content }) => {
+    store.dispatch({
+      type: ADD_REQUEST,
+      payload: {
+        request: backend.editNode,
+        args: {
+          id,
+          content
+        }
+      }
+    })
+  }
+  , 600);
 
 export const updateUser = ({ username }) => (dispatch) => () => {
   dispatch({
@@ -61,6 +78,7 @@ export const updateCursor = () => (dispatch, getState) => {
   const { cursorPosition } = getState();
   const { id, position } = cursorPosition;
   const el = document.getElementById(id);
+  if (!el) return;
   const range = document.createRange();
   const sel = window.getSelection();
   if (el.childNodes.length) {
@@ -161,9 +179,13 @@ export const indentToRight = () => (dispatch, getState) => {
   })
 }
 
-export const editNode = ({ id, content }) => (dispatch, getState) => {
+let lastEditId = null;
+export const editNode = ({ id, content, lastId }) => (dispatch, getState) => {
   const { contentData } = getState();
   const { nodes } = contentData;
+  if (!nodes[id]) {
+    return;
+  }
   dispatch({
     type: UPDATE_DATA,
     payload: {
@@ -178,16 +200,22 @@ export const editNode = ({ id, content }) => (dispatch, getState) => {
     }
   })
   // 发送后端同步请求
-  dispatch({
-    type: ADD_REQUEST,
-    payload: {
-      request: backend.editNode,
-      args: {
-        id,
-        content
+  if (lastEditId === id) {
+    onceDispatchEdit({ id, content });
+  }
+  else {
+    dispatch({
+      type: ADD_REQUEST,
+      payload: {
+        request: backend.editNode,
+        args: {
+          id,
+          content
+        }
       }
-    }
-  });
+    })
+  }
+  lastEditId = id;
 }
 
 export const deleteNode = ({ id }) => (dispatch, getState) => {
@@ -212,7 +240,7 @@ export const deleteNode = ({ id }) => (dispatch, getState) => {
   };
   // 完整的删除子树
   let toDeleteKeys = [...nodes[id].children];
-  while(!!toDeleteKeys.length) {
+  while (!!toDeleteKeys.length) {
     const key = toDeleteKeys.pop();
     if (!!nodes[key].children.length) {
       toDeleteKeys = [...toDeleteKeys, ...nodes[key].children]
