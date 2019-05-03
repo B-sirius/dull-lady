@@ -5,7 +5,7 @@ import indentLeftImg from 'assets/indent-decrease.svg';
 import indentRightImg from 'assets/indent-increase.svg';
 import trashImg from 'assets/trash.svg';
 import { connect } from 'react-redux';
-import { indentToRight, indentToLeft, deleteNode } from 'actions';
+import { indentToRight, indentToLeft, deleteNode, UPDATE_CURSOR } from 'actions';
 import styles from './TextFocusedTool.module.css';
 
 class TextFocusedTool extends PureComponent {
@@ -23,7 +23,47 @@ class TextFocusedTool extends PureComponent {
   }
 
   deleteNode = () => {
-    const { focusedNode } = this.props;
+    const { focusedNode, contentData } = this.props;
+    const { nodes, rootId } = contentData;
+    const id = focusedNode.currId;
+    const node = nodes[id];
+    const parentId = node.parent;
+    const parent = nodes[parentId];
+    const nodeIndex = parent.children.indexOf(id);
+    if (nodeIndex !== 0 && nodeIndex !== -1) {
+      const brotherNode = nodes[parent.children[nodeIndex - 1]];
+      if (!brotherNode.children.length) {
+        this.props.dispatch({
+          type: UPDATE_CURSOR,
+          payload: {
+            needUpdate: true,
+            id: brotherNode.id,
+            position: brotherNode.content.length
+          }
+        });
+      }
+      else {
+        const brotherLastChild = nodes[brotherNode.children[brotherNode.children.length - 1]];
+        this.props.dispatch({
+          type: UPDATE_CURSOR,
+          payload: {
+            needUpdate: true,
+            id: brotherLastChild.id,
+            position: brotherLastChild.content.length
+          }
+        });
+      }
+    }
+    else if (nodeIndex === 0 && parentId !== rootId) {
+      this.props.dispatch({
+        type: UPDATE_CURSOR,
+        payload: {
+          needUpdate: true,
+          id: parentId,
+          position: parent.content.length
+        }
+      });
+    }
     this.props.dispatch(deleteNode({ id: focusedNode.currId }));
   }
 
@@ -60,8 +100,9 @@ class TextFocusedTool extends PureComponent {
 }
 
 export default connect(
-  ({ focusedNode }) => ({
-    focusedNode
+  ({ focusedNode, contentData }) => ({
+    focusedNode,
+    contentData
   }),
   dispatch => ({ dispatch })
 )(TextFocusedTool)

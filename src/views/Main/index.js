@@ -2,12 +2,14 @@ import React, { PureComponent } from 'react';
 import { PropTypes } from 'prop-types'
 import { connect } from 'react-redux';
 import Node from 'components/Node';
-import { UPDATE_DATA, UPDATE_FOCUSED_NODE, UPDATE_REQUEST_QUEUE, updateCursor, updateUser, updateNetworkCondition } from 'actions';
+import { UPDATE_DATA, UPDATE_FOCUSED_NODE, REMOVE_REQUEST, updateCursor, updateUser, updateNetworkCondition } from 'actions';
 import fetchWrapper from 'utils/fetchWrapper';
 import uuidv1 from 'uuid/v1';
 import backend from 'backend';
 import styles from './Main.module.css';
 import history from 'utils/history';
+
+let isRequestQueueProcessing = false
 
 class Main extends PureComponent {
   static propTypes = {
@@ -29,7 +31,8 @@ class Main extends PureComponent {
     // 更新光标位置
     if (cursorPosition.needUpdate) dispatch(updateCursor());
     // 控制请求队列
-    if (this.props.requestQueue !== prevProps.requestQueue) {
+    console.log('did update','this:', this.props.requestQueue, 'prev:', prevProps.requestQueue);
+    if (this.props.requestQueue !== prevProps.requestQueue && !isRequestQueueProcessing) {
       this.handleRequestQueue();
     }
     // 离线->在线
@@ -60,13 +63,20 @@ class Main extends PureComponent {
   handleRequestQueue = async () => {
     const { requestQueue } = this.props;
     if (requestQueue.length > 0) {
+      isRequestQueueProcessing = true;
+
       const { request, args } = requestQueue[0];
+      console.log('before request', requestQueue)
       const { error } = await fetchWrapper(request(args));
       if (error) throw error;
+
+      isRequestQueueProcessing = false;
+      console.log('after request done', requestQueue);
       this.props.dispatch({
-        type: UPDATE_REQUEST_QUEUE,
-        payload: [...requestQueue.slice(1)]
-      })
+        type: REMOVE_REQUEST,
+      });
+      console.log('should handle request again');
+      console.log('handle', requestQueue);
     }
   }
 

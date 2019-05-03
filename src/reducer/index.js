@@ -3,7 +3,7 @@ import {
   UPDATE_DATA,
   UPDATE_CURSOR,
   UPDATE_FOCUSED_NODE,
-  UPDATE_REQUEST_QUEUE,
+  REMOVE_REQUEST,
   ADD_REQUEST,
   UPDATE_NETWORK_STATE,
   UPDATE_SETTING_STATE,
@@ -131,8 +131,8 @@ function requestQueue(
 ) {
   const { type, payload } = action;
   switch (type) {
-    case UPDATE_REQUEST_QUEUE:
-      return [...payload];
+    case REMOVE_REQUEST:
+      return state.slice(1);
     case ADD_REQUEST:
       return [...state, payload]
     default: return state;

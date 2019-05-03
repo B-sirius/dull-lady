@@ -7,6 +7,7 @@ import styles from './Login.module.css';
 import history from 'utils/history';
 import { LOGIN_STATE } from 'utils/constant';
 import { withAlert } from 'react-alert';
+import fetchWrapper from 'utils/fetchWrapper';
 
 class Login extends PureComponent {
   static propTypes = {
@@ -38,7 +39,7 @@ class Login extends PureComponent {
 
   logIn = async () => {
     const { username, password } = this.state;
-    const res = await backend.logIn({ username, password });
+    const { res, error } = await fetchWrapper(backend.logIn({ username, password }));
     if (res.status === 200 && res.data.state === LOGIN_STATE.OK) {
       history.push({ pathname: '/' });
       return;
@@ -51,7 +52,7 @@ class Login extends PureComponent {
       this.props.alert.error('密码错误');
       return;
     }
-    this.props.alert.error('请求失败');
+    this.props.alert.error('登陆失败');
   }
 
   createUser = async ({ username, password }) => {

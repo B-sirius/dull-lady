@@ -11,8 +11,8 @@ import AlertTemplate from 'react-alert-template-basic';
 const alertOptions = {
   position: positions.TOP_CENTER,
   timeout: 2000,
-  offset: '30px',
-  transition: transitions.SCALE
+  offset: '10px',
+  transition: transitions.FADE
 }
 
 class App extends PureComponent {

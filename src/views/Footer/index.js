@@ -8,6 +8,7 @@ import { openSetting } from 'actions';
 import styles from './Footer.module.css';
 import backend from '../../backend';
 import fetchWrapper from 'utils/fetchWrapper';
+import { withAlert } from 'react-alert';
 
 class Footer extends PureComponent {
 
@@ -15,7 +16,8 @@ class Footer extends PureComponent {
     isActive: PropTypes.bool,
     dispatch: PropTypes.func,
     contentData: PropTypes.object,
-    userInfo: PropTypes.object
+    userInfo: PropTypes.object,
+    alert: PropTypes.object
   }
 
   pushLocalData = async () => {
@@ -29,9 +31,14 @@ class Footer extends PureComponent {
         nodes: contentData.nodes
       })
     )
+    this.props.alert.success('本地同步完成');
     // 同步远程
-    const { error, res } = await fetchWrapper(backend.pushLocalData({ contentData }));
-    if (error) throw error;
+    const { error } = await fetchWrapper(backend.pushLocalData({ contentData }));
+    if (error) {
+      this.props.alert.error('远端同步失败');
+      throw error;
+    };
+    this.props.alert.success('远端同步完成');
   }
 
   render() {
@@ -75,4 +82,4 @@ export default connect(
     contentData, userInfo
   }),
   dispatch => ({ dispatch })
-)(Footer)
+)(withAlert()(Footer))
