@@ -116,7 +116,6 @@ class Main extends PureComponent {
   initNodes = async () => {
     // 离线
     if (!this.props.networkCondition.isOnline) {
-      console.log('this shouldnt happen!');
       let localData = localStorage.getItem('localData');
       const { nodes } = JSON.parse(localData);
       let root;
