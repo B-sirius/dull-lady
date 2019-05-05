@@ -7,7 +7,9 @@ import {
   ADD_REQUEST,
   UPDATE_NETWORK_STATE,
   UPDATE_SETTING_STATE,
-  UPDATE_USER
+  UPDATE_USER,
+  SAVED,
+  UNSAVED
 } from 'actions';
 
 function userInfo(
@@ -139,6 +141,19 @@ function requestQueue(
   }
 }
 
+function unsavedChange(state = {
+  isSaved: true
+}, action) {
+  const { type } = action;
+  switch (type) {
+    case SAVED:
+      return { isSaved: true }
+    case UNSAVED:
+      return { isSaved: false }
+    default: return state;
+  }
+}
+
 export default combineReducers({
   global: (state = {}) => state,
   contentData,
@@ -147,5 +162,6 @@ export default combineReducers({
   requestQueue,
   networkCondition,
   settingState,
-  userInfo
+  userInfo,
+  unsavedChange
 });

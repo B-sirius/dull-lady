@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const domain = `http://${window.location.hostname}:4000`;
+const domain = `//${window.location.hostname}:4000`;
 
 axios.defaults.withCredentials = true;
 

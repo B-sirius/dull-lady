@@ -1,7 +1,5 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import styles from './Warning.module.css';
-import classnames from 'classnames';
 
 class Warning extends PureComponent {
   render() {

@@ -8,6 +8,7 @@ import history from 'utils/history';
 import { LOGIN_STATE } from 'utils/constant';
 import { withAlert } from 'react-alert';
 import fetchWrapper from 'utils/fetchWrapper';
+import ReactLoading from 'react-loading';
 
 class Login extends PureComponent {
   static propTypes = {
@@ -21,7 +22,8 @@ class Login extends PureComponent {
     super(props);
     this.state = {
       username: '',
-      password: ''
+      password: '',
+      isLoading: false,
     }
   }
 
@@ -39,7 +41,25 @@ class Login extends PureComponent {
 
   logIn = async () => {
     const { username, password } = this.state;
+    if (!/^[a-zA-Z0-9_]{3,16}$/.test(username)) {
+      this.props.alert.error('用户名在3到16个英文字符之间');
+      return;
+    }
+    if (username === '' || password === '') {
+      this.props.alert.error('请输入用户名和密码');
+      return;
+    }
+    this.setState({
+      isLoading: true
+    });
     const { res, error } = await fetchWrapper(backend.logIn({ username, password }));
+    this.setState({
+      isLoading: false
+    });
+    if (error) {
+      this.props.alert.error('发生错误');
+      throw error;
+    }
     if (res.status === 200 && res.data.state === LOGIN_STATE.OK) {
       history.push({ pathname: '/' });
       return;
@@ -64,7 +84,7 @@ class Login extends PureComponent {
 
   render() {
     const { settingState } = this.props;
-    const { username, password } = this.state;
+    const { username, password, isLoading } = this.state;
     const { setUsername, setPassword, logIn } = this;
     const containerClass = classnames({
       [styles.container]: true,
@@ -91,6 +111,12 @@ class Login extends PureComponent {
           </div>
           <div onClick={logIn} className={styles.btn}>登陆/注册</div>
         </div>
+        {
+          isLoading &&
+          (<div className={styles.loadingContainer}>
+            <ReactLoading type={'cylon'} color={"#4aefe7"} width={"100px"} height={"100px"} />
+          </div>)
+        }
       </div>
     );
   }

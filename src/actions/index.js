@@ -9,6 +9,8 @@ export const REMOVE_REQUEST = 'REMOVE_REQUEST';
 export const ADD_REQUEST = 'ADD_REQUEST';
 export const UPDATE_NETWORK_STATE = 'UPDATE_NETWORK_STATE';
 export const UPDATE_SETTING_STATE = 'UPDATE_SETTING_STATE';
+export const SAVED = 'SAVED';
+export const UNSAVED = 'UNSAVED';
 
 const onceDispatchEdit = once(
   ({ id, content }) => {

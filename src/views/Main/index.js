@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { PropTypes } from 'prop-types'
 import { connect } from 'react-redux';
 import Node from 'components/Node';
-import { UPDATE_DATA, UPDATE_FOCUSED_NODE, REMOVE_REQUEST, updateCursor, updateUser, updateNetworkCondition } from 'actions';
+import { UPDATE_DATA, UPDATE_FOCUSED_NODE, REMOVE_REQUEST, SAVED, UNSAVED, updateCursor, updateUser, updateNetworkCondition } from 'actions';
 import fetchWrapper from 'utils/fetchWrapper';
 import uuidv1 from 'uuid/v1';
 import backend from 'backend';
@@ -27,17 +27,22 @@ class Main extends PureComponent {
   }
 
   async componentDidUpdate(prevProps) {
-    const { cursorPosition, dispatch, networkCondition } = this.props;
+    const { cursorPosition, dispatch, networkCondition, contentData } = this.props;
     // 更新光标位置
     if (cursorPosition.needUpdate) dispatch(updateCursor());
     // 控制请求队列
-    console.log('did update','this:', this.props.requestQueue, 'prev:', prevProps.requestQueue);
     if (this.props.requestQueue !== prevProps.requestQueue && !isRequestQueueProcessing) {
       this.handleRequestQueue();
     }
     // 离线->在线
     if (networkCondition.isOnline && !prevProps.networkCondition.isOnline) {
       this.handleOffline2Online();
+    }
+    // 记录是否有未保存更新
+    if (contentData.nodes !== prevProps.contentData.nodes) {
+      this.props.dispatch({
+        type: UNSAVED,
+      });
     }
   }
 
@@ -66,46 +71,52 @@ class Main extends PureComponent {
       isRequestQueueProcessing = true;
 
       const { request, args } = requestQueue[0];
-      console.log('before request', requestQueue)
       const { error } = await fetchWrapper(request(args));
       if (error) throw error;
 
       isRequestQueueProcessing = false;
-      console.log('after request done', requestQueue);
       this.props.dispatch({
         type: REMOVE_REQUEST,
       });
-      console.log('should handle request again');
-      console.log('handle', requestQueue);
+      return;
     }
+    // 记录数据已同步
+    this.props.dispatch({
+      type: SAVED,
+    });
   }
 
   // 初始化用户
   initUser = async () => {
-    if (!navigator.onLine) {
+    let username;
+    const { error, res } = await fetchWrapper(backend.getUser());
+    // 网络请求错误
+    if (error) {
       let localData = localStorage.getItem('localData');
       if (!localData) history.push('/login');
       else {
         localData = JSON.parse(localData);
-        const { username } = localData;
+        username = localData.username;
         this.props.dispatch(updateUser({ username }))
       };
     }
-    else {
-      const { error, res } = await fetchWrapper(backend.getUser());
-      if (error) {
-        history.push('/login');
-        return;
-      }
-      const { username } = res.data;
-      this.props.dispatch(updateUser({ username }))();
+    // 不符合的登录状况
+    else if (!!res && res.data.code !== 200) {
+      history.push('/login');
+      return;
     }
+    // 成功登陆
+    else {
+      username = res.data.username;
+    }
+    this.props.dispatch(updateUser({ username }))();
   }
 
   // 初始化节点
   initNodes = async () => {
     // 离线
-    if (!navigator.onLine) {
+    if (!this.props.networkCondition.isOnline) {
+      console.log('this shouldnt happen!');
       let localData = localStorage.getItem('localData');
       const { nodes } = JSON.parse(localData);
       let root;
@@ -123,6 +134,9 @@ class Main extends PureComponent {
           rootId: root.id,
           nodes
         }
+      });
+      this.props.dispatch({
+        type: SAVED,
       });
     }
     // 在线
@@ -157,20 +171,18 @@ class Main extends PureComponent {
           nodes: nodesMap
         }
       });
+      this.props.dispatch({
+        type: SAVED,
+      });
     }
   }
 
-  initLocalStorage = () => {
-    const { userInfo, contentData } = this.props;
-    window.addEventListener('unload', () => {
-      localStorage.setItem(
-        'localData',
-        JSON.stringify({
-          name: userInfo.username,
-          localUpdatedTime: new Date(),
-          nodes: contentData.nodes
-        })
-      )
+  initUnloadWarning = () => {
+    window.addEventListener('beforeunload', e => {
+      const { unsavedChange } = this.props;
+      if (!unsavedChange.isSaved) {
+        e.returnValue = '尚有未保存内容，确定要退出么？';
+      }
     });
   }
 
@@ -183,7 +195,7 @@ class Main extends PureComponent {
     });
     await this.initUser();
     await this.initNodes();
-    this.initLocalStorage();
+    this.initUnloadWarning();
   }
 
   blurFocus = e => {
@@ -221,13 +233,14 @@ class Main extends PureComponent {
 }
 
 export default connect(
-  ({ contentData, cursorPosition, focusedNode, requestQueue, userInfo, networkCondition }) => ({
+  ({ contentData, cursorPosition, focusedNode, requestQueue, userInfo, networkCondition, unsavedChange }) => ({
     contentData,
     cursorPosition,
     focusedNode,
     requestQueue,
     userInfo,
-    networkCondition
+    networkCondition,
+    unsavedChange
   }),
   dispatch => ({ dispatch })
 )(Main)

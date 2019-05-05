@@ -7,6 +7,7 @@ import { closeSetting } from 'actions';
 import backend from 'backend';
 import styles from './Setting.module.css';
 import history from 'utils/history';
+import fetchWrapper from 'utils/fetchWrapper';
 
 class Setting extends PureComponent {
   static propTypes = {
@@ -16,7 +17,11 @@ class Setting extends PureComponent {
   }
 
   logOut = async () => {
-    await backend.logOut();
+    const { res, error } = await fetchWrapper(backend.logOut());
+    if (error) {
+      history.push('/login');
+    }
+    localStorage.removeItem('localData');
     history.push('/login');
     this.props.dispatch(closeSetting())();
   }

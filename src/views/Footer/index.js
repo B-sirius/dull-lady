@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import SettingImg from 'assets/setting.svg';
 import SyncImg from 'assets/sync.svg';
 import TextFocusedTool from 'views/TextFocusedTool';
-import { openSetting } from 'actions';
+import { openSetting, SAVED } from 'actions';
 import styles from './Footer.module.css';
 import backend from '../../backend';
 import fetchWrapper from 'utils/fetchWrapper';
@@ -26,12 +26,16 @@ class Footer extends PureComponent {
     localStorage.setItem(
       'localData',
       JSON.stringify({
-        name: userInfo.username,
+        username: userInfo.username,
         localUpdatedTime: new Date(),
         nodes: contentData.nodes
       })
     )
     this.props.alert.success('本地同步完成');
+    // 记录数据同步
+    this.props.dispatch({
+      type: SAVED,
+    });
     // 同步远程
     const { error } = await fetchWrapper(backend.pushLocalData({ contentData }));
     if (error) {
