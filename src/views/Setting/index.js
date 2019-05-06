@@ -17,12 +17,10 @@ class Setting extends PureComponent {
   }
 
   logOut = async () => {
-    const { res, error } = await fetchWrapper(backend.logOut());
-    if (error) {
-      history.push('/login');
-    }
     localStorage.removeItem('localData');
     history.push('/login');
+    history.push('/login');
+    const { res, error } = await fetchWrapper(backend.logOut());
     this.props.dispatch(closeSetting())();
   }
   
