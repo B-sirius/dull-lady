@@ -141,6 +141,7 @@ class Main extends PureComponent {
     // 在线
     else {
       // 获得所有节点
+      console.log('before', this.props.contentData.nodes);
       const { error, res } = await fetchWrapper(backend.getAllNodes());
       if (error) throw error;
       const { nodes } = res.data;
@@ -212,22 +213,25 @@ class Main extends PureComponent {
     } = this.props;
     const { blurFocus } = this;
     const { rootId, nodes } = contentData;
-    return (
-      <div
-        className={styles.container}
-        onClick={blurFocus}
-      >
-        {
-          !!nodes[rootId].children &&
-          nodes[rootId].children.map(nodeId => (
-            <Node
-              key={nodeId}
-              node={nodes[nodeId]}
-            />
-          ))
-        }
-      </div>
-    );
+    if (Object.keys(nodes).length === 0)
+      return <div className={styles.container}></div>;
+    else
+      return (
+        <div
+          className={styles.container}
+          onClick={blurFocus}
+        >
+          {
+            !!nodes[rootId].children &&
+            nodes[rootId].children.map(nodeId => (
+              <Node
+                key={nodeId}
+                node={nodes[nodeId]}
+              />
+            ))
+          }
+        </div>
+      );
   }
 }
 

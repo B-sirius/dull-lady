@@ -11,6 +11,7 @@ class Header extends PureComponent {
 
   renderPath = () => {
     const { path, nodes } = this.props.contentData;
+    if (path.length === 0) return null;
     const jsx = path
       .map((id, index) => (
         <PathText

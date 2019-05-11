@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { PropTypes } from 'prop-types'
 import classnames from 'classnames';
 import { connect } from 'react-redux';
+import { UPDATE_DATA } from 'actions';
 import closeImg from 'assets/close.svg';
 import { closeSetting } from 'actions';
 import backend from 'backend';
@@ -17,13 +18,21 @@ class Setting extends PureComponent {
   }
 
   logOut = async () => {
+    this.props.dispatch({
+      type: UPDATE_DATA,
+      payload: {
+        path: [],
+        rootId: null,
+        nodes: {}
+      }
+    });
     localStorage.removeItem('localData');
     history.push('/login');
     history.push('/login');
     const { res, error } = await fetchWrapper(backend.logOut());
     this.props.dispatch(closeSetting())();
   }
-  
+
   render() {
     const { dispatch, settingState, userInfo } = this.props;
     const { logOut } = this;
